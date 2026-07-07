@@ -46,6 +46,25 @@
     <div class="menu-hint mono">↑ ↓ to navigate · Enter to select</div>
   </div>
 
+  <!-- Center side: About Me Profile (always visible on menu) -->
+  <div id="menu-about">
+    <div class="about-profile-card">
+      <div class="about-photo-wrap">
+        <img class="profile-photo" src="images/Headshot.jpg" alt="Gautham Ramkumar"/>
+      </div>
+      <div class="about-bio-wrap">
+        <h2>Building the perception layer for autonomous robots</h2>
+        <p>I'm a Master's student in Robotics at Northeastern University (graduating May 2026), concentrating in ECE. My work sits at the intersection of sensor fusion, SLAM, and deep learning — the systems that let robots understand their environment reliably, even in GPS-denied or visually challenging conditions.</p>
+        
+        <div class="stat-strip">
+          <div><span class="num">70ms</span><span class="lbl">Cam-LiDAR Offset</span></div>
+          <div><span class="num">90%</span><span class="lbl">GT Alignment</span></div>
+          <div><span class="num">31.42dB</span><span class="lbl">3DGS PSNR</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Right side: Project Video Showcase (always visible on menu) -->
   <div id="project-showcase">
     <div class="showcase-header mono">FEATURED PROJECTS</div>
@@ -53,17 +72,20 @@
   </div>
 </div>
 
-<!-- NEW GAME (About + Experience) -->
+<!-- EXPERIENCE PANEL -->
 <div class="overlay-panel" id="panel-newgame">
   <div class="panel-layout-grid">
-    <!-- Left Column: Bio, Focus & History -->
+    <!-- Left Column: Timeline -->
     <div class="panel-card scrollable">
-      <div class="eyebrow">ABOUT ME · BIOGRAPHY &amp; PROFILE</div>
-      <h2>Building the perception layer for autonomous robots</h2>
-      <p>I'm a Master's student in Robotics at Northeastern University (graduating May 2026), concentrating in ECE. My work sits at the intersection of sensor fusion, SLAM, and deep learning — the systems that let robots understand their environment reliably, even in GPS-denied or visually challenging conditions.</p>
-      <p>Before Northeastern, I completed a B.Tech in Electronics and Communications at VIT Chennai, and spent time as an IoT intern at SmartInternz building real-time sensing and cloud logging pipelines.</p>
+      <div class="eyebrow">EXPERIENCE · EDUCATION &amp; PROFESSIONAL TIMELINE</div>
+      <div id="timeline-list"></div>
+    </div>
+
+    <!-- Right Column: Capabilities & Interests -->
+    <div class="panel-card right-panel scrollable">
+      <div class="eyebrow">CAPABILITIES · SKILL FOCUS &amp; INTERESTS</div>
       
-      <div class="focus-box">
+      <div class="focus-box" style="margin-top: 0;">
         <h3>Primary Capabilities Focus</h3>
         <ul class="focus-list">
           <li>Camera–LiDAR–IMU calibration & temporal synchronization</li>
@@ -73,24 +95,6 @@
           <li>3D reconstruction — SfM, 3D Gaussian Splatting, bundle adjustment</li>
           <li>Deep learning perception on edge hardware (Jetson Nano)</li>
         </ul>
-      </div>
-
-      <div class="timeline-header">
-        <h3>Professional Timeline</h3>
-      </div>
-      <div id="timeline-list"></div>
-    </div>
-
-    <!-- Right Column: Stats & Meta Cards -->
-    <div class="panel-card right-panel">
-      <div class="headshot-wrap">
-        <img class="profile-photo" src="images/Headshot.jpg" alt="Gautham Ramkumar"/>
-      </div>
-      
-      <div class="stat-strip">
-        <div><span class="num">70ms</span><span class="lbl">Cam-LiDAR Offset</span></div>
-        <div><span class="num">90%</span><span class="lbl">GT Alignment</span></div>
-        <div><span class="num">31.42dB</span><span class="lbl">3DGS PSNR</span></div>
       </div>
 
       <div class="interest-block">
