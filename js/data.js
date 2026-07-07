@@ -270,14 +270,14 @@ export const featuredProjectIndices = [5, 0, 3, 9]; // 3DGS, DarkSight, RTAB SLA
 
 export const sectionMsgs = {
   menu: 'CORE DIRECTORY ACTIVE. Select a section to review credentials.',
-  newgame: 'ACADEMIC PROFILE LOADED. Reviewing biography and background timeline.',
+  newgame: 'EXPERIENCE MODULE ACTIVE. Reviewing professional timeline and capabilities.',
   resume: '3D SLAM FACTOR GRAPH MAP ACTIVE. Hover or click nodes to inspect category clusters.',
   options: 'TECHNICAL CAPABILITY CHART ACTIVE. Hover over nodes or controller sections to inspect competencies.',
   exit: 'COMMUNICATION GATEWAY ESTABLISHED. Ready for guest package transmission.'
 };
 
 export const menuItems = [
-  { id: 'newgame', label: 'ABOUT ME', subtitle: 'Profile & Education' },
+  { id: 'newgame', label: 'EXPERIENCE', subtitle: 'Profile & Timeline' },
   { id: 'resume', label: 'PROJECTS', subtitle: 'Interactive 3D Project Graph' },
   { id: 'options', label: 'TECHNICAL SKILLS', subtitle: 'Capabilities Map' },
   { id: 'exit', label: 'CONTACT', subtitle: 'Get in Touch' }

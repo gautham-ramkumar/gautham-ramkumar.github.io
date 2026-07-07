@@ -87,7 +87,7 @@ export function initApp() {
   function focusIndex(i) {
     focused = i;
     menuButtons.forEach((el, idx) => el.classList.toggle('focused', idx === i));
-    if (i === 0) scene.hoverMenuItem(0);       // ABOUT ME
+    if (i === 0) scene.hoverMenuItem(0);       // EXPERIENCE
     else if (i === 1) scene.hoverMenuItem(1);  // PROJECTS
     else if (i === 2) scene.hoverMenuItem(2);  // TECHNICAL SKILLS
     else if (i === 3) scene.hoverMenuItem(3);  // CONTACT
@@ -210,7 +210,7 @@ export function initApp() {
     Object.keys(panels).forEach((k) => panels[k].classList.toggle('active', k === id));
     nodeLabelsWrap.style.display = id === 'resume' ? 'block' : 'none';
     backBtn.classList.add('show');
-    readout.textContent = `[ ${id.toUpperCase()} ]`;
+    readout.textContent = id === 'newgame' ? '[ EXPERIENCE ]' : `[ ${id.toUpperCase()} ]`;
     scene.setMode(id);
     if (id === 'resume' || id === 'menu') {
       scene.setParticleOpacity(0.75);
