@@ -277,10 +277,10 @@ export const sectionMsgs = {
 };
 
 export const menuItems = [
-  { id: 'newgame', label: 'EXPERIENCE', subtitle: 'Profile & Timeline' },
+  { id: 'newgame', label: 'EXPERIENCE', subtitle: 'Timeline & Education' },
   { id: 'resume', label: 'PROJECTS', subtitle: 'Interactive 3D Project Graph' },
   { id: 'options', label: 'TECHNICAL SKILLS', subtitle: 'Capabilities Map' },
-  { id: 'exit', label: 'CONTACT', subtitle: 'Get in Touch' }
+  { id: 'exit', label: 'CONTACT ME', subtitle: 'Get in Touch' }
 ];
 
 // Xbox Controller 2D mapping labels to skillGroups indices

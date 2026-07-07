@@ -199,7 +199,7 @@ export function initApp() {
       Object.keys(panels).forEach((k) => panels[k].classList.toggle('active', k === 'exit'));
       nodeLabelsWrap.style.display = 'none';
       backBtn.classList.add('show');
-      readout.textContent = '[ CONTACT ]';
+      readout.textContent = '[ CONTACT ME ]';
       scene.setMode('exit');
       scene.setParticleOpacity(0.15);
       say(sectionMsgs.exit, 3000);
