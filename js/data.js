@@ -360,6 +360,7 @@ export const skillGroups = [
     title: 'Deep Learning Modeling',
     items: [
       'CNNs',
+      'RNNs',
       'U-Net',
       '3D Convolutions',
       'ConvGRU',
