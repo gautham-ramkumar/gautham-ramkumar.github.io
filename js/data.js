@@ -47,16 +47,16 @@ export const catData = [
     {
       t: 'Camera–LiDAR Temporal Calibration',
       lbl: 'Time Offset',
-      val: '70ms',
+      val: '-19.49ms',
       tags: ['Calibration', 'Multi-Sensor', 'C++', 'Oct 2025'],
       date: 'Oct 2025 – Dec 2025',
       situation: 'Camera-LiDAR sensor fusion requires sub-millisecond temporal synchronization; manual target-based calibration is tedious and cannot adapt to dynamic online sensor latency.',
-      action: 'Estimated the real-world time offset between an unsynchronized stereo camera and LiDAR using cross-modal edge alignment. The pipeline projects LiDAR point clouds onto calibrated camera frames, computes Canny edges on both modalities, and scores alignment using distance transforms — then sweeps over candidate offsets to find the optimum.',
-      result: 'Estimated 70ms offset, independently validated using Powell optimization and dense grid search cross-validation; integrated IMU preintegration to merge 3 consecutive scans to produce denser point clouds.',
+      action: 'Implemented a stamp-primary temporal sync pipeline with a bounded residual path. The system anchors on stable hardware capture timestamps (tau_stamp) and then lets cross-modal edge alignment correct a small, plausible latency bias (tau_res), avoiding failure modes from scene-driven aliasing.',
+      result: 'Estimated a stable -19.49 ms offset on the huntington dataset (1500 camera frames, 750 LiDAR scans). The bounded residual approach prevented large >150 ms swings seen in naive unconstrained edge-score searches.',
       metrics: [
-        { num: '70ms', label: 'time offset estimated' },
-        { num: '3×', label: 'point cloud density via IMU' },
-        { num: '2', label: 'validation methods' }
+        { num: '-19.49ms', label: 'time offset estimated' },
+        { num: '±50ms', label: 'bounded residual clip' },
+        { num: '1.5ms', label: 'stability across windows' }
       ],
       stack: ['Python', 'C++', 'GTSAM', 'ROS2', 'Open3D', 'OpenCV'],
       github: 'https://github.com/gautham-ramkumar/Camera-LiDAR-Temporal-Calibration',
@@ -112,21 +112,21 @@ export const catData = [
   [
     {
       t: '3D Reconstruction via SfM',
-      lbl: 'BA Accuracy',
-      val: '+26%',
+      lbl: 'Cost Reduction',
+      val: '~70%',
       tags: ['GTSAM', 'OpenCV', 'Bundle Adj.', 'Python'],
       date: '2025',
       situation: 'Creating accurate 3D models from collections of unordered 2D images is computationally expensive and prone to scale and gauge ambiguity.',
-      action: 'Built a full Structure from Motion pipeline from scratch — no high-level reconstruction utilities. Starting from 24 monocular images: SIFT features, RANSAC outlier rejection, essential matrix decomposition, triangulation, and non-linear bundle adjustment over 1,477 landmarks via GTSAM factor graphs.',
-      result: 'Improves accuracy by 26% using bundle adjustment; enables camera localization in GPS-denied environments via PnP pose estimation.',
+      action: 'Built a full Structure from Motion pipeline from scratch — no high-level reconstruction utilities. Starting from 24 monocular images: SIFT features, RANSAC outlier rejection, essential matrix decomposition, triangulation, and non-linear bundle adjustment over ~5.5k landmarks via GTSAM factor graphs.',
+      result: 'Achieved a ~60-70% reduction in bundle adjustment cost with a final reprojection RMSE of ~3-4 pixels. Successfully registered all 24 views and generated sparse models compatible with COLMAP GUI.',
       metrics: [
-        { num: '26%', label: 'accuracy improvement via bundle adjustment' },
-        { num: '1,477', label: 'landmarks optimized via GTSAM' },
-        { num: '24', label: 'monocular images as input' }
+        { num: '~60-70%', label: 'BA cost reduction' },
+        { num: '~5.5k', label: 'sparse landmarks optimized' },
+        { num: '~3-4 px', label: 'final reprojection RMSE' }
       ],
       stack: ['Python', 'OpenCV', 'GTSAM', 'Open3D', 'NumPy'],
       github: 'https://github.com/gautham-ramkumar/3D-Reconstruction-using-SfM',
-      video: 'https://www.youtube.com/embed/WeK6MU-wFHA'
+      images: ['images/Ground_Truth.png', 'images/Pre_BA.png', 'images/Post_BA.png']
     }
   ],
 
