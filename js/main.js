@@ -1,4 +1,4 @@
-import { catData, skillGroups, experience, categoryGroups } from './data.js';
+import { catData, skillGroups, experience, categoryGroups, featuredProjectIndices } from './data.js';
 
 // ============================================================
 // 1. APPLICATION INITIALIZATION
@@ -81,94 +81,148 @@ const categorySlugs = {
   'Control & Manipulation': 'ctrl'
 };
 
+function getCategoryGroup(index) {
+  return categoryGroups.find(g => g.indices.includes(index));
+}
+
 function getCategorySlug(index) {
-  const group = categoryGroups.find(g => g.indices.includes(index));
+  const group = getCategoryGroup(index);
   return group ? (categorySlugs[group.title] || 'all') : 'all';
 }
 
-// Render Category Accordion Boxes & Projects Grid
+function getProjectThumb(proj) {
+  if (proj.video) {
+    const match = proj.video.match(/embed\/([A-Za-z0-9_-]+)/);
+    if (match) {
+      return {
+        kind: 'video',
+        src: `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg`
+      };
+    }
+  }
+  if (proj.images && proj.images.length > 0) {
+    return { kind: 'image', src: proj.images[0] };
+  }
+  return { kind: 'none', src: '' };
+}
+
 function renderProjects() {
-  const container = document.getElementById('projects-categories-container');
-  if (!container) return;
-  
-  container.innerHTML = '';
-  
-  categoryGroups.forEach((group, groupIdx) => {
-    const box = document.createElement('div');
-    box.className = 'project-category-box';
-    // Expand the first category (Deep Learning) by default
-    if (groupIdx === 0) box.classList.add('expanded');
-    
-    const count = group.indices.length;
-    
-    const header = document.createElement('button');
-    header.className = 'category-header';
-    header.setAttribute('aria-expanded', groupIdx === 0 ? 'true' : 'false');
-    header.innerHTML = `
-      <h3>
-        <span>${group.title}</span>
-        <span class="category-count">${count} Node${count > 1 ? 's' : ''}</span>
-      </h3>
-      <span class="category-chevron">▼</span>
-    `;
-    
-    const content = document.createElement('div');
-    content.className = 'category-content';
-    
-    const grid = document.createElement('div');
-    grid.className = 'projects-bento-grid';
-    
-    group.indices.forEach((index) => {
-      const projectArray = catData[index];
-      const proj = projectArray[0];
-      const catSlug = getCategorySlug(index);
-      
-      // Assign specific column spans to create an organic Bento grid layout
-      let spanClass = 'span-4';
-      if (index === 0 || index === 5) {
-        spanClass = 'span-8'; // Feature DarkSight & 3DGS
-      } else if (index === 2 || index === 3 || index === 10 || index === 11) {
-        spanClass = 'span-6'; // Mid-sized layout spacing
-      }
-      
-      const card = document.createElement('div');
-      card.className = `bento-card ${spanClass} project-card`;
-      card.dataset.category = catSlug;
-      card.dataset.index = index;
-      
-      card.innerHTML = `
-        <div class="bento-card-top">
-          <div class="bento-card-meta">
-            <span class="bento-card-date mono">${proj.date || ''}</span>
-            <span class="bento-card-arrow">→</span>
+  const filterBar = document.getElementById('projects-filter-bar');
+  const gallery = document.getElementById('projects-categories-container');
+  if (!gallery) return;
+
+  const featuredSet = new Set(featuredProjectIndices);
+  const ordered = [
+    ...featuredProjectIndices.filter(i => catData[i]),
+    ...catData.map((_, i) => i).filter(i => !featuredSet.has(i))
+  ];
+
+  const filters = [
+    { title: 'All', slug: 'all', count: catData.length },
+    ...categoryGroups.map(group => ({
+      title: group.title,
+      slug: categorySlugs[group.title],
+      count: group.indices.length
+    }))
+  ];
+
+  let activeFilter = 'all';
+
+  if (filterBar) {
+    filterBar.setAttribute('role', 'tablist');
+    filterBar.setAttribute('aria-label', 'Filter projects by domain');
+    filterBar.innerHTML = filters.map((filter, i) => `
+      <button
+        type="button"
+        class="proj-filter${filter.slug === activeFilter ? ' active' : ''}"
+        data-filter="${filter.slug}"
+        role="tab"
+        aria-selected="${filter.slug === activeFilter}"
+        id="proj-filter-${filter.slug}"
+      >
+        ${filter.title}
+        <span class="proj-filter-count">${filter.count}</span>
+      </button>
+    `).join('');
+  }
+
+  gallery.className = 'projects-gallery';
+  gallery.innerHTML = ordered.map((index, displayIdx) => {
+    const proj = catData[index][0];
+    const group = getCategoryGroup(index);
+    const thumb = getProjectThumb(proj);
+    const featured = featuredSet.has(index);
+
+    return `
+      <article
+        class="project-card proj-card${featured ? ' is-featured' : ''}"
+        data-category="${getCategorySlug(index)}"
+        data-index="${index}"
+        tabindex="0"
+        role="button"
+        aria-label="${proj.t}"
+      >
+        <div class="proj-card-media${thumb.kind === 'none' ? ' is-fallback' : ''}">
+          ${thumb.src
+            ? `<img src="${thumb.src}" alt="${proj.t}" loading="lazy">`
+            : `<div class="proj-card-fallback"><span>${proj.val}</span></div>`}
+          ${thumb.kind === 'video' ? '<span class="proj-card-play" aria-hidden="true">▶</span>' : ''}
+          <span class="proj-card-cat">${group ? group.title : ''}</span>
+        </div>
+        <div class="proj-card-body">
+          <div class="proj-card-meta">
+            <span class="proj-card-index mono">${String(displayIdx + 1).padStart(2, '0')}</span>
+            <span class="proj-card-date">${proj.date || ''}</span>
           </div>
           <h3>${proj.t}</h3>
-          <p class="bento-card-summary">${proj.situation}</p>
-        </div>
-        <div class="bento-card-bottom">
-          <div class="bento-card-metric">
-            <span class="bento-card-metric-val">${proj.val}</span>
-            <span class="bento-card-metric-lbl">${proj.lbl}</span>
+          <p class="proj-card-summary">${proj.situation}</p>
+          <div class="proj-card-footer">
+            <div class="proj-card-metric">
+              <span class="proj-card-metric-val">${proj.val}</span>
+              <span class="proj-card-metric-lbl">${proj.lbl}</span>
+            </div>
+            <div class="bento-card-tags">
+              ${proj.stack.slice(0, 3).map(tag => `<span class="bento-card-tag">${tag}</span>`).join('')}
+            </div>
           </div>
-          <div class="bento-card-tags">
-            ${proj.stack.slice(0, 3).map(tag => `<span class="bento-card-tag">${tag}</span>`).join('')}
-          </div>
         </div>
-      `;
-      grid.appendChild(card);
+      </article>
+    `;
+  }).join('');
+
+  function applyFilter() {
+    const cards = gallery.querySelectorAll('.project-card');
+    let visible = 0;
+    cards.forEach(card => {
+      const show = activeFilter === 'all' || card.dataset.category === activeFilter;
+      card.classList.toggle('is-hidden', !show);
+      if (show) visible += 1;
     });
-    
-    content.appendChild(grid);
-    box.appendChild(header);
-    box.appendChild(content);
-    container.appendChild(box);
-    
-    // Attach click handler to toggle accordion
-    header.addEventListener('click', () => {
-      const isExpanded = box.classList.toggle('expanded');
-      header.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+    if (filterBar) {
+      filterBar.querySelectorAll('.proj-filter').forEach(btn => {
+        const on = btn.dataset.filter === activeFilter;
+        btn.classList.toggle('active', on);
+        btn.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+    }
+    const countEl = document.getElementById('projects-visible-count');
+    if (countEl) {
+      countEl.textContent = activeFilter === 'all'
+        ? `${visible} selected projects`
+        : `${visible} in ${filters.find(f => f.slug === activeFilter)?.title || ''}`;
+    }
+  }
+
+  if (filterBar) {
+    filterBar.addEventListener('click', (e) => {
+      const btn = e.target.closest('.proj-filter');
+      if (!btn) return;
+      activeFilter = btn.dataset.filter;
+      applyFilter();
     });
-  });
+  }
+
+  applyFilter();
 }
 
 // Render Skills Group list
@@ -358,13 +412,19 @@ function initProjectModal() {
     if (iframe) iframe.src = '';
   }
   
-  // Attach card click handlers on document event delegation
-  document.addEventListener('click', (e) => {
-    const card = e.target.closest('.project-card');
-    if (card) {
-      const index = parseInt(card.dataset.index);
-      openModal(index);
-    }
+  function tryOpenCard(target) {
+    const card = target.closest('.project-card');
+    if (!card || card.classList.contains('is-hidden')) return;
+    const index = parseInt(card.dataset.index, 10);
+    if (!Number.isNaN(index)) openModal(index);
+  }
+
+  document.addEventListener('click', (e) => tryOpenCard(e.target));
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    if (!e.target.classList.contains('project-card')) return;
+    e.preventDefault();
+    tryOpenCard(e.target);
   });
   
   modalClose.addEventListener('click', closeModal);
