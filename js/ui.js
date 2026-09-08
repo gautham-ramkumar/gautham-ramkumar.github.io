@@ -141,8 +141,9 @@ export function initApp() {
             ${proj.metrics.map(m => `<div class="sc-metric-box"><div class="sc-m-num">${m.num}</div><div class="sc-m-lbl">${m.label}</div></div>`).join('')}
           </div>
           <div class="sc-actions">
-            <button class="sc-play-btn">▶ PLAY VIDEO</button>
-            <a class="sc-gh-btn" href="${proj.github}" target="_blank">GitHub ↗</a>
+            ${proj.video ? `<button class="sc-play-btn">▶ PLAY VIDEO</button>` : ''}
+            ${proj.github ? `<a class="sc-gh-btn" href="${proj.github}" target="_blank" rel="noopener noreferrer">GitHub ↗</a>` : ''}
+            ${proj.demo && !proj.github ? `<a class="sc-gh-btn" href="${proj.demo}" target="_blank" rel="noopener noreferrer">Watch Demo ↗</a>` : ''}
           </div>
         </div>
       </div>
@@ -175,9 +176,9 @@ export function initApp() {
       scene.deselectCategory();
     }
 
-    playBtn.addEventListener('click', openVideo);
-    playOverlay.addEventListener('click', openVideo);
-    closeBtn.addEventListener('click', (e) => { e.stopPropagation(); closeVideo(); });
+    playBtn?.addEventListener('click', openVideo);
+    playOverlay?.addEventListener('click', openVideo);
+    closeBtn?.addEventListener('click', (e) => { e.stopPropagation(); closeVideo(); });
 
     showcaseCardsEl.appendChild(card);
   });
@@ -372,7 +373,8 @@ export function initApp() {
           </div>
           
           <div class="action-footer">
-            <a class="btn primary" href="${project.github}" target="_blank">View on GitHub ↗</a>
+            ${project.github ? `<a class="btn primary" href="${project.github}" target="_blank" rel="noopener noreferrer">View on GitHub ↗</a>` : ''}
+            ${project.demo ? `<a class="btn" href="${project.demo}" target="_blank" rel="noopener noreferrer">Watch Demo ↗</a>` : ''}
           </div>
         </div>
       </div>

@@ -73,13 +73,17 @@ function initHashRouting() {
 // 4. DATA-DRIVEN DOM GENERATION
 // ============================================================
 
-// Helper to determine category slugs
+const categorySlugs = {
+  'Deep Learning': 'dl',
+  '3D Geometry': '3d',
+  'State Estimation': 'est',
+  'SLAM': 'slam',
+  'Control & Manipulation': 'ctrl'
+};
+
 function getCategorySlug(index) {
-  if ([0, 7, 8, 9].includes(index)) return 'dl';
-  if ([1, 4, 5].includes(index)) return '3d';
-  if ([2].includes(index)) return 'est';
-  if ([3, 6].includes(index)) return 'slam';
-  return 'all';
+  const group = categoryGroups.find(g => g.indices.includes(index));
+  return group ? (categorySlugs[group.title] || 'all') : 'all';
 }
 
 // Render Category Accordion Boxes & Projects Grid
@@ -123,7 +127,7 @@ function renderProjects() {
       let spanClass = 'span-4';
       if (index === 0 || index === 5) {
         spanClass = 'span-8'; // Feature DarkSight & 3DGS
-      } else if (index === 2 || index === 3) {
+      } else if (index === 2 || index === 3 || index === 10 || index === 11) {
         spanClass = 'span-6'; // Mid-sized layout spacing
       }
       
@@ -300,11 +304,18 @@ function initProjectModal() {
             </div>
           </div>
           
-          <!-- Action Link -->
-          <div style="margin-top: 10px;">
-            <a href="${project.github}" class="btn btn-primary" style="width: 100%;" target="_blank">
-              View on GitHub ↗
-            </a>
+          <!-- Action Links -->
+          <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 8px;">
+            ${project.github ? `
+              <a href="${project.github}" class="btn btn-primary" style="width: 100%;" target="_blank" rel="noopener noreferrer">
+                View on GitHub ↗
+              </a>
+            ` : ''}
+            ${project.demo ? `
+              <a href="${project.demo}" class="btn btn-secondary" style="width: 100%;" target="_blank" rel="noopener noreferrer">
+                Watch Demo ↗
+              </a>
+            ` : ''}
           </div>
         </div>
       </div>

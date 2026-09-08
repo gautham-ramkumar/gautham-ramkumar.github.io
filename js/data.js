@@ -238,6 +238,50 @@ export const catData = [
       github: 'https://github.com/gautham-ramkumar',
       video: 'https://www.youtube.com/embed/y-EcAAwTE80'
     }
+  ],
+
+  // Project 10: HZD Bipedal Gait Control (Category: Control & Manipulation)
+  [
+    {
+      t: 'HZD Bipedal Gait Control',
+      lbl: 'Walking Speed',
+      val: '1.73 m/s',
+      tags: ['MATLAB', 'HZD', 'fmincon', '2026'],
+      date: '2026',
+      situation: 'Classical ZMP-based biped controllers suppress the leg\'s natural pendulum dynamics to stay upright, producing slow, energetically expensive gaits. Designing a provably stable walking cycle for an underactuated 3-link planar biped remains a hard hybrid-control problem.',
+      action: 'Derived full swing-phase Lagrangian dynamics and a heel-strike impact map symbolically; imposed 4th-order Bézier virtual constraints to reduce the system onto a 2-DOF Hybrid Zero Dynamics manifold; optimized the periodic orbit with fmincon for minimum control effort; synthesized an exact input-output feedback linearization controller and validated it with a 15-step full-order simulation and Poincaré return-map analysis.',
+      result: 'Closed-loop walking at ≈1.73 m/s with Mechanical Cost of Transport 1.1584. Poincaré error decayed geometrically over 15 steps, confirming exponential orbital stability of the designed limit cycle.',
+      metrics: [
+        { num: '1.73 m/s', label: 'closed-loop walking speed' },
+        { num: '1.1584', label: 'Mechanical Cost of Transport' },
+        { num: '15 steps', label: 'full-order sim, Poincaré-stable' }
+      ],
+      stack: ['MATLAB', 'HZD', 'Feedback Linearization', 'fmincon', 'Bézier Virtual Constraints'],
+      github: 'https://github.com/gautham-ramkumar/hzd-biped-control',
+      images: ['images/HZD_anim_snapshot.png', 'images/HZD_trajectories.png', 'images/HZD_phase.png']
+    }
+  ],
+
+  // Project 11: YesChef — Voice-Controlled Cooking Robot (Category: Control & Manipulation)
+  [
+    {
+      t: 'YesChef — Voice-Controlled Cooking',
+      lbl: 'Hackathon',
+      val: '2nd Place',
+      tags: ['Whisper', 'Qwen', 'VLM', 'Aug 2026'],
+      date: 'Aug 2026',
+      situation: 'Cooking robots need to interpret spoken recipes, see the workspace, and act — without cloud APIs that add latency and privacy risk. The Revolute Hackathon tasked teams with making a robot cook, end to end, in a weekend.',
+      action: 'Built a fully local voice-to-action pipeline: Whisper for speech-to-text, Qwen 2.5 3B as a vision-language model for scene understanding, and Qwen 2.5 3B as a language model for instruction parsing and action planning. All three models ran on-device to drive robotic manipulation for cooking tasks.',
+      result: 'Won 2nd place at the Revolute Hackathon (Aug 1–2 2026) with a working voice-controlled cooking demo running three local models in the loop.',
+      metrics: [
+        { num: '2nd', label: 'place at Revolute Hackathon' },
+        { num: '3 models', label: 'Whisper + Qwen 2.5 VLM + Qwen 2.5 LM' },
+        { num: 'On-device', label: 'fully local inference, no cloud APIs' }
+      ],
+      stack: ['Whisper', 'Qwen 2.5 VLM', 'Qwen 2.5 LM', 'Robotic Manipulation'],
+      video: 'https://www.youtube.com/embed/7AaO0o-qSSI',
+      demo: 'https://youtu.be/7AaO0o-qSSI'
+    }
   ]
 ];
 
@@ -262,6 +306,11 @@ export const categoryGroups = [
     title: 'SLAM',
     color: '#e8846f',
     indices: [3, 6]
+  },
+  {
+    title: 'Control & Manipulation',
+    color: '#6db3f2',
+    indices: [10, 11]
   }
 ];
 
@@ -367,7 +416,9 @@ export const skillGroups = [
       'Transfer Learning',
       'Fine-Tuning',
       'Edge Deployment',
-      'Loss Function Design'
+      'Loss Function Design',
+      'Vision-Language Models',
+      'Whisper (Speech-to-Text)'
     ]
   },
   {
@@ -388,7 +439,8 @@ export const skillGroups = [
       'Autonomous Field Robotics',
       'Mobile Robotics',
       'Robot Mechanics & Controls',
-      'Control Systems Engineering'
+      'Control Systems Engineering',
+      'Legged Robotics (HZD)'
     ]
   }
 ];
