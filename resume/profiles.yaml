@@ -1,0 +1,91 @@
+# ============================================================
+# profiles.yaml — one entry per targeted resume.
+#
+# Each profile re-headlines and re-orders the SAME facts from
+# content.yaml. Add a profile here to get a new PDF; nothing needs
+# to be duplicated, and build.py regenerates the site's resume
+# picker (js/resumes.js) so the menu can never drift from the PDFs.
+#
+#   projects:      explicit, ordered list of project ids to include.
+#                  Order here is the order on the page.
+#   skills:        ordered list of skill-group keys from content.yaml.
+#   max_projects:  hard cap applied after ordering.
+#   max_bullets:   bullets kept per project.
+#   label/blurb:   shown in the website's resume dropdown.
+#
+# max_projects and max_bullets are the two dials for holding one page.
+# ============================================================
+
+# Which profile also gets copied to the legacy Gautham_Ramkumar_Resume.pdf
+# filename that the site header has always linked to.
+default: slam
+
+profiles:
+
+  # ----------------------------------------------------------
+  slam:
+    label: SLAM & State Estimation
+    blurb: Localization, sensor fusion, and factor-graph estimation
+    filename: Gautham_Ramkumar_Resume_SLAM.pdf
+    headline: SLAM, Localization & State Estimation Engineer
+    summary: >-
+      Robotics M.S. candidate focused on localization for GPS-denied
+      autonomy, working on the sensor fusion, calibration, and factor-graph
+      layers that keep a robot's pose estimate reliable under noise,
+      latency, and signal loss.
+    projects: [cam_lidar, rtab, ekf, sfm]
+    max_projects: 4
+    max_bullets: 2
+    skills: [languages, estimation, perception, tools, hardware]
+    show_authorization: true
+
+  # ----------------------------------------------------------
+  computer-vision:
+    label: Computer Vision
+    blurb: 3D perception, multi-view geometry, learned enhancement
+    filename: Gautham_Ramkumar_Resume_Computer_Vision.pdf
+    headline: Computer Vision & 3D Perception Engineer
+    summary: >-
+      Robotics M.S. candidate specializing in computer vision and 3D
+      perception, from classical multi-view geometry and bundle adjustment
+      to learned enhancement models deployed on edge hardware.
+    projects: [gsplat, darksight, sfm, color]
+    max_projects: 4
+    max_bullets: 2
+    skills: [languages, perception, learning, tools, hardware]
+    show_authorization: true
+
+  # ----------------------------------------------------------
+  deep-learning:
+    label: Deep Learning & Edge ML
+    blurb: Model design and real-time inference on edge hardware
+    filename: Gautham_Ramkumar_Resume_Deep_Learning.pdf
+    headline: Deep Learning & Edge ML Engineer
+    summary: >-
+      Robotics M.S. candidate building perception models that hold up
+      outside the benchmark, with an emphasis on temporal consistency,
+      task-aware losses, and real-time inference on constrained hardware.
+    projects: [darksight, gsplat, lowlight, wall]
+    max_projects: 4
+    max_bullets: 2
+    skills: [languages, learning, perception, tools, hardware]
+    show_authorization: true
+
+  # ----------------------------------------------------------
+  # NOTE: control/manipulation is your thinnest evidence base
+  # (hzd + yeschef). This profile leads with those two, then uses your
+  # strongest robotics-systems work to carry the rest of the page.
+  control:
+    label: Control & Manipulation
+    blurb: Gait synthesis, feedback control, and manipulation
+    filename: Gautham_Ramkumar_Resume_Control_Manipulation.pdf
+    headline: Robot Control & Manipulation Engineer
+    summary: >-
+      Robotics M.S. candidate working across control synthesis and robot
+      autonomy, from Hybrid Zero Dynamics gait design and feedback
+      linearization to language-driven manipulation running fully on-device.
+    projects: [hzd, yeschef, rtab, cam_lidar]
+    max_projects: 4
+    max_bullets: 2
+    skills: [languages, control, estimation, tools, hardware]
+    show_authorization: true

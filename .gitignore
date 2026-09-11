@@ -1,0 +1,12 @@
+# Resume build output. The published copies live at the repo root so they
+# get clean download URLs; these are intermediates from resume/build.py.
+resume/out/
+
+# LaTeX intermediates
+*.aux
+*.log
+*.synctex.gz
+
+# Python
+__pycache__/
+*.pyc

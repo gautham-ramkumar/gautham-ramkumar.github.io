@@ -1,0 +1,277 @@
+# ============================================================
+# content.yaml — single source of truth for every resume.
+#
+# Every fact below was seeded from your own published portfolio
+# (js/data.js and the live site copy). Nothing here was invented.
+#
+# Fields marked TODO could NOT be verified from the site. The build
+# script refuses to emit a PDF while any TODO remains in a field that
+# a profile actually uses, so fill these in before sending anything out.
+# ============================================================
+
+basics:
+  name: Gautham Ramkumar
+  location: Boston, MA
+  email: ramkumar.g@northeastern.edu
+  phone: "TODO: phone number, or delete this line to omit it"
+  linkedin: linkedin.com/in/rgautham20
+  github: github.com/gautham-ramkumar
+  website: gautham-ramkumar.github.io
+  # Shown only if a profile sets show_authorization: true
+  authorization: F-1 STEM OPT eligible; no immediate sponsorship required
+
+education:
+  - degree: M.S. Robotics — Concentration in Electrical & Computer Engineering
+    institution: Northeastern University
+    location: Boston, MA
+    dates: 2024 – 2026
+    notes: []
+    coursework:
+      - Advanced Perception
+      - Robot Sensing & Navigation
+      - Autonomous Field Robotics
+      - Mobile Robotics
+      - Robot Mechanics & Controls
+      - Legged Robotics
+    gpa: "TODO: GPA, or delete this line to omit it"
+
+  - degree: B.Tech. Electronics & Communications Engineering
+    institution: Vellore Institute of Technology (VIT)
+    location: Chennai, India
+    dates: 2020 – 2024
+    notes: []
+    coursework: []
+    gpa: "TODO: GPA, or delete this line to omit it"
+
+experience:
+  - role: IoT Engineering Intern
+    org: SmartInternz
+    location: "TODO: location (remote / city)"
+    dates: 2023
+    bullets:
+      - Built real-time sensing pipelines and cloud logging systems on IoT hardware.
+      - Integrated embedded sensor data acquisition with cloud infrastructure.
+
+  # TODO: add any research assistant, teaching assistant, or co-op roles here.
+  # Your site lists only the SmartInternz internship, so that is all I seeded.
+
+awards:
+  - title: 2nd Place, Revolute Hackathon
+    dates: Aug 2026
+    detail: Voice-controlled robotic manipulation for cooking, built in a weekend.
+
+# ------------------------------------------------------------
+# Projects. `domains` controls which resumes a project can appear on.
+# Valid domains: cv, slam, control, ml
+# ------------------------------------------------------------
+projects:
+  - id: darksight
+    name: DarkSight — Low-Light Perception
+    dates: 2025 – Present
+    domains: [cv, ml, slam]
+    headline: 21 FPS real-time, 17.25 dB PSNR
+    stack: [PyTorch, TensorRT, RAFT, YOLOv8, RealSense]
+    link: github.com/gautham-ramkumar/DarkSight
+    bullets:
+      - Designed a DS3DConv encoder-decoder with a ConvGRU bottleneck for frame memory and RAFT optical-flow warping for temporal consistency.
+      - Tuned a perception-aware loss against YOLOv8 features and exported the model to TensorRT INT8/FP16 for edge deployment.
+      - Reached 17.25 dB PSNR at 0.99 ORB stability, running 21 FPS at 360p with 57 ms inference latency on an Intel RealSense D435.
+
+  - id: cam_lidar
+    name: Camera-LiDAR Temporal Calibration
+    dates: Oct 2025 – Dec 2025
+    domains: [slam, cv]
+    headline: -19.49 ms offset, stable to 1.5 ms
+    stack: [Python, C++, GTSAM, ROS2, Open3D, OpenCV]
+    link: github.com/gautham-ramkumar/Camera-LiDAR-Temporal-Calibration
+    bullets:
+      - Built a stamp-primary temporal synchronization pipeline anchored on hardware capture timestamps, with a bounded residual path correcting latency bias via cross-modal edge alignment.
+      - Estimated a stable -19.49 ms camera-LiDAR offset across 1,500 camera frames and 750 LiDAR scans, repeatable to within 1.5 ms across windows.
+      - Bounded the residual to +/-50 ms, eliminating the >150 ms swings produced by unconstrained edge-score search.
+
+  - id: rtab
+    name: Indoor 3D Mapping with RTAB-Map
+    dates: Sep 2025 – Oct 2025
+    domains: [slam]
+    headline: 90% ground-truth alignment, GPS-denied
+    stack: [ROS2, ZED Mini, LiDAR, VectorNav IMU]
+    link: github.com/gautham-ramkumar/3D-Mapping-RTAB
+    bullets:
+      - Deployed RTAB-Map visual SLAM on a ZED Mini stereo camera in ROS2, bringing up a full sensor suite (LiDAR, VectorNav IMU) with calibrated coordinate transforms.
+      - Validated loop-closure detection and pose-graph consistency across long trajectories in repetitive, GPS-denied tunnels.
+      - Achieved 90% alignment to the ground-truth tunnel layout in real time.
+
+  - id: ekf
+    name: GPS-IMU Fusion via Extended Kalman Filter
+    dates: Sep 2025 – Oct 2025
+    domains: [slam]
+    headline: 600 Hz IMU prediction rate
+    stack: [Python, NumPy]
+    link: github.com/gautham-ramkumar/2D-EKF-using-GPS-and-IMU
+    bullets:
+      - Implemented a real-time 2D vehicle localization EKF fusing a 600 Hz IMU with asynchronous, low-rate GNSS measurements.
+      - Propagated state through IMU kinematics and weighted GPS position updates by measurement uncertainty.
+      - Held trajectory continuity through GPS-denied tunnels using dead reckoning with adaptive covariance inflation until signal recovery.
+
+  - id: gsplat
+    name: 3D Gaussian Splatting from Scratch
+    dates: Jan 2026 – Mar 2026
+    domains: [cv, ml]
+    headline: 31.42 dB PSNR, 0.9531 SSIM
+    stack: [Python, PyTorch, CUDA, COLMAP, Docker]
+    link: github.com/gautham-ramkumar/gaussian-splatting
+    bullets:
+      - Implemented the full Gaussian optimization pipeline from scratch, including densification, cloning, splitting, pruning, and adaptive parameter control, on the official EWA CUDA rasterizer.
+      - Established 7,500 iterations as the optimal stopping point for small scenes at 31.42 dB PSNR / 0.9531 SSIM, over 16 dB better than the 30k checkpoint.
+      - Containerized training and evaluation with Docker and GitHub Actions CI/CD.
+
+  - id: sfm
+    name: 3D Reconstruction via Structure from Motion
+    dates: 2025
+    domains: [cv, slam]
+    headline: ~60-70% BA cost reduction
+    stack: [Python, OpenCV, GTSAM, Open3D]
+    link: github.com/gautham-ramkumar/3D-Reconstruction-using-SfM
+    bullets:
+      - Built an incremental SfM pipeline from scratch: SIFT features, RANSAC outlier rejection, essential-matrix decomposition, and triangulation.
+      - Optimized roughly 5,500 landmarks through GTSAM factor-graph bundle adjustment, cutting bundle adjustment cost 60-70%.
+      - Registered all 24 monocular views at a 3-4 px final reprojection RMSE and exported COLMAP-compatible sparse models.
+
+  - id: underwater
+    name: Underwater Image Mosaicing with Factor Graphs
+    dates: 2025
+    domains: [slam, cv]
+    headline: Drift-free mosaic over 28 frames
+    stack: [Python, GTSAM, OpenCV]
+    link: github.com/gautham-ramkumar
+    bullets:
+      - Developed a 2D mosaicing pipeline for 28 underwater frames using GTSAM factor-graph optimization.
+      - Estimated pairwise homographies from SIFT matches and added loop-closure constraints on overlapping pairs to cancel accumulated drift.
+      - Produced a drift-free global mosaic despite low-visibility, light-attenuated, feature-sparse conditions.
+
+  - id: color
+    name: Semantic Color Constancy
+    dates: 2025
+    domains: [cv, ml]
+    headline: +63% color accuracy
+    stack: [Python, PyTorch, YOLOv8, OpenCV]
+    link: github.com/gautham-ramkumar/Semantic-Color-Constancy
+    bullets:
+      - Conditioned illumination correction on semantic object identity via YOLOv8 detections and per-object chromaticity priors.
+      - Learned priors across 80 COCO categories from 5,600 derived images.
+      - Improved color accuracy 63% under mixed and non-uniform lighting at 130 ms CPU inference per image.
+
+  - id: lowlight
+    name: Low-Light Image Enhancement with U-Net
+    dates: 2025
+    domains: [ml, cv]
+    headline: 19.37 dB PSNR on LOLv1
+    stack: [Python, PyTorch, OpenCV]
+    link: github.com/gautham-ramkumar/Image-Enhancement
+    bullets:
+      - Designed a U-Net pipeline for joint denoising and exposure correction on the LOLv1 benchmark.
+      - Combined an L1 reconstruction loss with a perceptual SSIM term, using skip connections to preserve high-frequency structure.
+      - Reached 19.37 dB PSNR, a 16.9% improvement over the 16.57 dB baseline.
+
+  - id: wall
+    name: Real-Time Wall Surface Defect Detection
+    dates: Jan 2024 – Apr 2024
+    domains: [ml, cv]
+    headline: 91.9% precision on Jetson Nano
+    stack: [Python, YOLOv5, Jetson Nano, RealSense, Roboflow]
+    link: github.com/gautham-ramkumar
+    bullets:
+      - Annotated a custom 1,300-image dataset covering cracks, bubbles, dents, and scratches using LabelImg and Roboflow.
+      - Fine-tuned YOLOv5 and deployed to an NVIDIA Jetson Nano at 91.9% precision in real time.
+      - Fused Intel RealSense D435 depth to localize each defect in 3D, separating cosmetic surface flaws from structural damage.
+
+  - id: hzd
+    name: Hybrid Zero Dynamics Bipedal Gait Control
+    dates: 2026
+    domains: [control]
+    headline: 1.73 m/s walking, 1.1584 MCOT
+    stack: [MATLAB, Feedback Linearization, fmincon]
+    link: github.com/gautham-ramkumar/hzd-biped-control
+    bullets:
+      - Derived full swing-phase Lagrangian dynamics and a heel-strike impact map symbolically for a 3-link planar biped.
+      - Imposed 4th-order Bézier virtual constraints to reduce the system onto a 2-DOF Hybrid Zero Dynamics manifold, then optimized the periodic orbit for minimum control effort with fmincon.
+      - Synthesized exact input-output feedback linearization and validated 1.73 m/s walking at 1.1584 Mechanical Cost of Transport, with Poincaré return-map error decaying geometrically over 15 steps.
+
+  - id: yeschef
+    name: YesChef — Voice-Controlled Robotic Manipulation
+    dates: Aug 2026
+    domains: [control, ml]
+    headline: 2nd place, Revolute Hackathon
+    stack: [Whisper, Qwen 2.5 VLM, Qwen 2.5 LM]
+    link: youtu.be/7AaO0o-qSSI
+    bullets:
+      - Built a fully local voice-to-action pipeline driving robotic manipulation for cooking tasks.
+      - Chained Whisper for speech-to-text, a Qwen 2.5 3B vision-language model for workspace understanding, and a Qwen 2.5 3B language model for instruction parsing and action planning.
+      - Ran all three models on-device with no cloud APIs, removing network latency and privacy exposure; placed 2nd of the hackathon field.
+
+# ------------------------------------------------------------
+# Skills. Profiles pick which groups to show and in what order.
+# ------------------------------------------------------------
+skills:
+  languages:
+    label: Languages
+    items: [Python, C++, MATLAB]
+
+  perception:
+    label: Perception & Vision
+    items:
+      - Visual SLAM (RTAB-Map)
+      - Stereo Vision
+      - Depth Estimation
+      - Object Detection (YOLO)
+      - 3D Reconstruction (SfM)
+      - Feature Matching (SIFT/ORB)
+      - Point Cloud Processing
+      - Loop Closure Detection
+
+  estimation:
+    label: State Estimation & Calibration
+    items:
+      - Extended Kalman Filters
+      - Factor Graph Optimization
+      - Bundle Adjustment
+      - Multi-Sensor Calibration
+      - Camera-LiDAR Calibration
+      - Temporal Synchronization
+      - Sensor Fusion
+      - Pose Estimation
+
+  learning:
+    label: Deep Learning
+    items:
+      - CNNs
+      - RNNs / ConvGRU
+      - U-Net
+      - 3D Convolutions
+      - Vision-Language Models
+      - Transfer Learning
+      - Loss Function Design
+      - Edge Deployment
+
+  control:
+    label: Control & Dynamics
+    items:
+      - Hybrid Zero Dynamics
+      - Feedback Linearization
+      - Trajectory Optimization
+      - Lagrangian Dynamics
+      - PID / LQR / MPC
+      - Legged Locomotion
+
+  tools:
+    label: Frameworks & Tools
+    items: [ROS2, PyTorch, OpenCV, GTSAM, Open3D, TensorRT, CUDA, COLMAP, Docker, Git]
+
+  hardware:
+    label: Hardware & Sensors
+    items:
+      - ZED Mini Stereo Camera
+      - Intel RealSense D435
+      - LiDAR
+      - VectorNav IMU
+      - NVIDIA Jetson Nano

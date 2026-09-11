@@ -45,7 +45,12 @@
           <span class="toggle-icon sun-icon">☀️</span>
           <span class="toggle-icon moon-icon">🌙</span>
         </button>
-        <a href="Gautham_Ramkumar_Resume.pdf" class="btn-hire" target="_blank" rel="noopener noreferrer">Resume →</a>
+        <!-- Resume picker. initResumeMenu() turns this into a dropdown;
+             with JS unavailable it stays a working link to the default resume. -->
+        <div class="resume-menu" id="resume-menu">
+          <a href="Gautham_Ramkumar_Resume.pdf" class="btn-hire" id="resume-menu-btn"
+             target="_blank" rel="noopener noreferrer">Resume →</a>
+        </div>
         
         <!-- Mobile menu toggle button -->
         <button id="mobile-menu-btn" class="mobile-toggle" aria-label="Toggle Navigation Menu">
