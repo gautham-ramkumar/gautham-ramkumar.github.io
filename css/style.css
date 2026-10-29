@@ -210,8 +210,11 @@ button {
   position: absolute;
   transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-[data-theme="light"] .sun-icon { transform: translateY(0); }
-[data-theme="light"] .moon-icon { transform: translateY(40px); }
+/* Light is the default state, expressed without a [data-theme] selector so
+   that a missing attribute still parks the moon offscreen instead of
+   rendering both icons at once. */
+.sun-icon { transform: translateY(0); }
+.moon-icon { transform: translateY(40px); }
 [data-theme="dark"] .sun-icon { transform: translateY(-40px); }
 [data-theme="dark"] .moon-icon { transform: translateY(0); }
 
@@ -226,6 +229,10 @@ button {
   padding: 10px 20px;
   border-radius: 30px;
   transition: all var(--transition-speed);
+  display: inline-flex;
+  align-items: center;
+  /* "Resume →" must never break across lines on narrow headers. */
+  white-space: nowrap;
 }
 .btn-hire:hover {
   background-color: var(--accent);
@@ -236,6 +243,12 @@ button {
 /* ---- Resume picker dropdown ---- */
 .resume-menu {
   position: relative;
+  /* Flex (not block) so .btn-hire stays blockified the way it was when it
+     was a direct child of .header-controls. As a plain block wrapper the
+     anchor fell back to display:inline and wrapped onto two lines. */
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 .resume-panel {

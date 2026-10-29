@@ -4,8 +4,8 @@
 export const resumes = [
   {
     id: "slam",
-    label: "SLAM & State Estimation",
-    blurb: "Localization, sensor fusion, and factor-graph estimation",
+    label: "Robotics & SLAM",
+    blurb: "Localization, calibration, and state estimation",
     file: "Gautham_Ramkumar_Resume_SLAM.pdf",
     isDefault: true
   },

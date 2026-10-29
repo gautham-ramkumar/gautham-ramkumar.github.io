@@ -14,7 +14,13 @@
   <!-- Inline theme check script to prevent layout flashes on load -->
   <script>
     (function() {
-      const savedTheme = localStorage.getItem('portfolio-theme') || 'light';
+      // localStorage throws in privacy mode and wherever site data is
+      // blocked. Unguarded, that left data-theme unset, which stacked both
+      // toggle icons on top of each other.
+      var savedTheme = 'light';
+      try {
+        savedTheme = localStorage.getItem('portfolio-theme') || 'light';
+      } catch (e) {}
       document.documentElement.setAttribute('data-theme', savedTheme);
     })();
   </script>
@@ -180,14 +186,14 @@
       <div class="page-header">
         <span class="section-kicker mono">// ESTABLISH_LINK</span>
         <h2 class="page-title font-serif">Get in Touch</h2>
-        <p class="page-subtitle">Feel free to reach out for new-grad roles, collaborations, or discussions.</p>
+        <p class="page-subtitle">Feel free to reach out about opportunities, collaborations, or discussions.</p>
       </div>
 
       <div class="contact-layout">
         <!-- Info column -->
         <div class="contact-info-col">
           <h3 class="font-serif">Let's build something worth navigating.</h3>
-          <p>I am looking for new-grad roles in robotics: perception, localization, calibration, and state estimation. Available for roles in the US (F-1 STEM OPT eligible, no immediate sponsorship required).</p>
+          <p>I am open to opportunities in robotics: perception, localization, calibration, and state estimation. Authorized to work in the US for 3 years with no sponsorship required.</p>
           
           <div class="contact-links-list">
             <a href="mailto:ramkumar.g@northeastern.edu" class="contact-link-node">

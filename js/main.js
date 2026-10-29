@@ -1,5 +1,4 @@
 import { catData, skillGroups, experience, categoryGroups, featuredProjectIndices } from './data.js';
-import { resumes } from './resumes.js';
 
 // ============================================================
 // 1. APPLICATION INITIALIZATION
@@ -30,7 +29,11 @@ function initTheme() {
     const newTheme = currentTheme === 'light' ? 'dark' : 'light';
     
     document.documentElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('portfolio-theme', newTheme);
+    try {
+      localStorage.setItem('portfolio-theme', newTheme);
+    } catch (e) {
+      // Privacy mode: the theme still applies, it just will not persist.
+    }
   });
 }
 
@@ -516,10 +519,21 @@ function initContactForm() {
 // so this menu always matches the PDFs that actually exist.
 // ============================================================
 
-function initResumeMenu() {
+async function initResumeMenu() {
   const wrap = document.getElementById('resume-menu');
   const trigger = document.getElementById('resume-menu-btn');
-  if (!wrap || !trigger || !Array.isArray(resumes) || resumes.length === 0) return;
+  if (!wrap || !trigger) return;
+
+  // Imported dynamically on purpose. As a static import, a missing or
+  // not-yet-propagated resumes.js aborted the whole main.js module, so the
+  // page rendered with no projects, skills, or navigation at all.
+  let resumes;
+  try {
+    ({ resumes } = await import('./resumes.js'));
+  } catch (err) {
+    return; // header keeps its plain link to the default resume
+  }
+  if (!Array.isArray(resumes) || resumes.length === 0) return;
 
   const panel = document.createElement('div');
   panel.className = 'resume-panel';

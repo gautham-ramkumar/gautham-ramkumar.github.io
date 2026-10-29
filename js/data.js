@@ -67,22 +67,22 @@ export const catData = [
   // Project 2: GPS–IMU Fusion via Extended Kalman Filter (Category: State Estimation)
   [
     {
-      t: 'GPS–IMU Fusion via EKF',
-      lbl: 'IMU Rate',
-      val: '600 Hz',
-      tags: ['State Estimation', 'EKF', 'Sep 2025'],
+      t: 'GPS–IMU–Wheel EKF Localization',
+      lbl: 'Outage Drift',
+      val: '20× lower',
+      tags: ['C++17', 'Eigen', 'EKF', 'ROS2'],
       date: 'Sep 2025 – Oct 2025',
-      situation: 'Autonomous vehicles require continuous, high-rate state estimation; GNSS alone is low-rate (1-5 Hz) and prone to dropouts in urban canyons, while IMU dead reckoning drifts exponentially.',
-      action: 'Developed a real-time 2D vehicle localization system that fuses a 600 Hz IMU with GNSS measurements using an Extended Kalman Filter. The prediction step propagates state using IMU kinematics; the update step incorporates GPS position measurements weighted by their uncertainty.',
-      result: 'Maintains trajectory continuity via IMU-only dead reckoning with adaptive covariance inflation in GPS-denied zones (tunnels) until GPS signal is restored.',
+      situation: 'GNSS is low-rate and disappears entirely in tunnels and urban canyons. Deriving speed by integrating an accelerometer turns any small bias into position error that grows quadratically, so dead reckoning decays fast. A 51-minute drive log recorded on a Lincoln MKZ with a Dataspeed drive-by-wire kit contained a real 7.7-minute GPS outage to survive.',
+      action: 'Built a 2D Extended Kalman Filter in C++17 with Eigen that fuses a 200 Hz IMU, 10 Hz GPS and 50 Hz wheel speed over a state of position, heading, speed and accelerometer bias. Used Joseph-form covariance updates to keep the covariance positive definite, chi-square innovation gating at 99% confidence to reject bad fixes, and a recovery path that inflates covariance after 10 consecutive rejections so the filter cannot reject GPS forever after a long outage. Ported from an earlier Python version, reproducing it to the reported precision before adding wheel speed.',
+      result: 'Wheel-speed fusion cut median dead-reckoning drift after simulated 30-second outages from 68.83 m to 3.32 m, roughly 20x, and reduced error after the real 462-second outage from 2123.93 m to 516.00 m. Held-out 95th-percentile error is 0.27 m, and the full 51-minute run completes in about 0.5 s in Release.',
       metrics: [
-        { num: '600Hz', label: 'IMU prediction rate' },
-        { num: 'EKF', label: 'prediction + update' },
-        { num: 'GPS-denied', label: 'continuity via dead reckoning' }
+        { num: '20×', label: 'less drift after a 30 s GPS outage' },
+        { num: '0.27 m', label: 'held-out 95th-percentile error' },
+        { num: '462 s', label: 'real GPS outage navigated' }
       ],
-      stack: ['Python', 'NumPy'],
+      stack: ['C++17', 'Eigen', 'ROS2', 'Python'],
       github: 'https://github.com/gautham-ramkumar/2D-EKF-using-GPS-and-IMU',
-      images: ['images/EKF.png']
+      images: ['images/EKF_trajectory.png', 'images/EKF.png']
     }
   ],
 
@@ -343,6 +343,12 @@ export const controllerMap = [
 ];
 
 export const experience = [
+  {
+    period: 'Aug 2026 – Present',
+    role: 'Robotics AI Engineer',
+    org: 'Chicago Education Advocacy Corporation · Chicago, IL (Remote)',
+    desc: 'Grew automated test coverage from 44 to 145 tests across a two-job CI pipeline. Reproduced a 70% SmolVLA task-success baseline in MuJoCo on an 8 GB GPU with pinned dependencies. Built a dataset verifier that catches three silent defects (zeroed chunks, wrong state convention, missing unnormalization), and Backstop, a VLA failure monitor reaching 85.4% detection at 2.9% false-stop on held-out episodes.'
+  },
   {
     period: '2024 – 2026',
     role: 'Master of Science — Robotics',

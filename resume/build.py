@@ -58,7 +58,7 @@ _UNICODE = {
     "×": r"$\times$",
     "≥": r"$\geq$",
     "≤": r"$\leq$",
-    "°": r"$^\circ$",
+    "°": r"\textdegree{}",
     "→": r"$\rightarrow$",
     "←": r"$\leftarrow$",
     "↗": "",
@@ -140,6 +140,33 @@ def href(url: str, label: str | None = None) -> str:
     return rf"\href{{{target}}}{{{tex_escape(label)}}}"
 
 
+def validate_text_lists(raw: dict) -> list[str]:
+    """Catch YAML scalars that silently parsed as something else.
+
+    An unquoted "word: word" inside a list becomes a dict, which would
+    otherwise be rendered into the PDF as a Python repr.
+    """
+    problems = []
+
+    def check(items, where):
+        for i, item in enumerate(items or []):
+            if not isinstance(item, str):
+                problems.append(
+                    f"{where}[{i}] parsed as {type(item).__name__}, not text "
+                    f"-- wrap it in quotes if it contains a colon: {item!r}"
+                )
+
+    check(raw.get("achievements"), "achievements")
+    for job in raw.get("experience") or []:
+        check(job.get("bullets"), f"experience[{job.get('org', '?')}].bullets")
+    for proj in raw.get("projects") or []:
+        check(proj.get("bullets"), f"projects[{proj.get('id', '?')}].bullets")
+        check(proj.get("stack"), f"projects[{proj.get('id', '?')}].stack")
+    for key, row in (raw.get("skills") or {}).items():
+        check((row or {}).get("items"), f"skills[{key}].items")
+    return problems
+
+
 def bold_link(url: str | None, label: str) -> str:
     """Bold, optionally hyperlinked title.
 
@@ -153,18 +180,36 @@ def bold_link(url: str | None, label: str) -> str:
     return rf"\href{{{target}}}{{{bold}}}"
 
 
+SEP = r" \textbar{} "
+
+
+def _link(target: str, label: str) -> str:
+    """\\href with a label that is already escaped; do not re-escape it."""
+    return rf"\href{{{target}}}{{{label}}}"
+
+
 def build_contact_line(basics: dict) -> str:
+    """Line 1: location, phone (tel:), email (mailto:)."""
     parts = []
     if basics.get("location"):
         parts.append(basics["location"])
-    if basics.get("email"):
-        parts.append(href(basics["email"]))
     if basics.get("phone"):
-        parts.append(tex_escape(basics["phone"]))
-    for key in ("website", "linkedin", "github"):
-        if basics.get(key):
-            parts.append(href(basics[key]))
-    return r" $\bullet$ ".join(parts)
+        digits = re.sub(r"\D", "", basics["phone"])
+        parts.append(_link(f"tel:+{digits}", basics["phone"]))
+    if basics.get("email"):
+        parts.append(_link(f"mailto:{basics['email']}", tex_escape(basics["email"])))
+    return SEP.join(parts)
+
+
+def build_links_line(basics: dict) -> str:
+    """Line 2: linkedin, github, personal site."""
+    parts = []
+    for key in ("linkedin", "github", "website"):
+        value = basics.get(key)
+        if value:
+            target = value if value.startswith(("http://", "https://")) else f"https://{value}"
+            parts.append(_link(target, tex_escape(value)))
+    return SEP.join(parts)
 
 
 def write_site_manifest(profiles: dict, default: str | None, targets: list[Path]) -> None:
@@ -249,6 +294,13 @@ def main() -> int:
     raw_content = yaml.safe_load((HERE / "content.yaml").read_text(encoding="utf-8"))
     raw_profiles = yaml.safe_load((HERE / "profiles.yaml").read_text(encoding="utf-8"))
 
+    problems = validate_text_lists(raw_content)
+    if problems:
+        print("content.yaml has malformed entries:")
+        for p in problems:
+            print(f"  - {p}")
+        return 2
+
     content = loader.clean(raw_content)
     # Profiles stay raw: their filenames and project/skill ids are lookup
     # keys, and only headline/summary ever reach LaTeX (escaped below).
@@ -281,7 +333,9 @@ def main() -> int:
 
     projects_by_id = {p["id"]: p for p in content.get("projects", [])}
     skill_groups = content.get("skills", {})
-    contact_line = build_contact_line(content.get("basics", {}))
+    basics = content.get("basics", {})
+    contact_line = build_contact_line(basics)
+    links_line = build_links_line(basics)
 
     failures = 0
     built: list[tuple[str, Path, int | None]] = []
@@ -313,21 +367,17 @@ def main() -> int:
             else:
                 print(f"[{name}] warning: unknown skill group '{key}'")
 
-        typeset_profile = dict(profile)
-        for field in ("headline", "summary"):
-            if profile.get(field):
-                typeset_profile[field] = tex_escape(profile[field])
-
         tex_source = template.render(
-            basics=content.get("basics", {}),
+            basics=basics,
+            achievements=content.get("achievements", []),
             education=content.get("education", []),
             experience=content.get("experience", []),
-            awards=content.get("awards", []),
             projects=chosen,
             skills=groups,
-            profile=typeset_profile,
+            profile=profile,
             contact_line=contact_line,
-            bold_link=bold_link,
+            links_line=links_line,
+            render_link=href,
         )
 
         out_pdf = OUT_DIR / profile["filename"]
