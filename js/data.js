@@ -152,29 +152,7 @@ export const catData = [
     }
   ],
 
-  // Project 6: Underwater Image Mosaicing with Factor Graphs (Category: SLAM)
-  [
-    {
-      t: 'Underwater Mosaicing',
-      lbl: 'Images',
-      val: '28 Frames',
-      tags: ['GTSAM', 'SIFT', 'Homography', 'Python'],
-      date: '2025',
-      situation: 'Acoustic and optical mapping of the seabed requires stitching multiple overlapping frames; standard stitching fails in low-visibility, light-attenuated underwater conditions.',
-      action: 'Developed a 2D image mosaicing pipeline for 28 underwater images using GTSAM factor graph optimization. Pairwise homographies estimated from SIFT matches; loop closure constraints on overlapping pairs eliminate accumulated drift.',
-      result: 'Robust homography estimation handles low-light, feature-sparse underwater conditions, resulting in a drift-free global mosaic map.',
-      metrics: [
-        { num: '28', label: 'underwater images mosaiced' },
-        { num: 'Zero', label: 'map drift via loop closure' },
-        { num: 'GTSAM', label: 'global factor graph optimization' }
-      ],
-      stack: ['Python', 'GTSAM', 'OpenCV', 'NumPy'],
-      github: 'https://github.com/gautham-ramkumar',
-      images: ['images/Image_Stitching1.png', 'images/Image_Stitching2.png']
-    }
-  ],
-
-  // Project 7: Semantic Color Constancy (Category: Deep Learning)
+  // Project 6: Semantic Color Constancy (Category: Deep Learning)
   [
     {
       t: 'Semantic Color Constancy',
@@ -196,7 +174,7 @@ export const catData = [
     }
   ],
 
-  // Project 8: Low-Light Image Enhancement with U-Net (Category: Deep Learning)
+  // Project 7: Low-Light Image Enhancement with U-Net (Category: Deep Learning)
   [
     {
       t: 'Low-Light Image Enhancement',
@@ -218,7 +196,7 @@ export const catData = [
     }
   ],
 
-  // Project 9: Real-Time Wall Surface Defect Detection (Category: Deep Learning)
+  // Project 8: Real-Time Wall Surface Defect Detection (Category: Deep Learning)
   [
     {
       t: 'Wall Defect Detection',
@@ -240,7 +218,7 @@ export const catData = [
     }
   ],
 
-  // Project 10: HZD Bipedal Gait Control (Category: Control & Manipulation)
+  // Project 9: HZD Bipedal Gait Control (Category: Control & Manipulation)
   [
     {
       t: 'HZD Bipedal Gait Control',
@@ -262,7 +240,7 @@ export const catData = [
     }
   ],
 
-  // Project 11: YesChef — Voice-Controlled Cooking Robot (Category: Control & Manipulation)
+  // Project 10: YesChef — Voice-Controlled Cooking Robot (Category: Control & Manipulation)
   [
     {
       t: 'YesChef — Voice-Controlled Cooking',
@@ -290,7 +268,7 @@ export const categoryGroups = [
   {
     title: 'Deep Learning',
     color: '#5eead4',
-    indices: [0, 7, 8, 9]
+    indices: [0, 6, 7, 8]
   },
   {
     title: '3D Geometry',
@@ -305,17 +283,17 @@ export const categoryGroups = [
   {
     title: 'SLAM',
     color: '#e8846f',
-    indices: [3, 6]
+    indices: [3]
   },
   {
     title: 'Control & Manipulation',
     color: '#6db3f2',
-    indices: [10, 11]
+    indices: [9, 10]
   }
 ];
 
 // Featured project indices to show on the main menu's right side showcase panel (4 projects)
-export const featuredProjectIndices = [5, 0, 3, 9]; // 3DGS, DarkSight, RTAB SLAM, Wall Defect
+export const featuredProjectIndices = [5, 0, 3, 8]; // 3DGS, DarkSight, RTAB SLAM, Wall Defect
 
 export const sectionMsgs = {
   menu: 'CORE DIRECTORY ACTIVE. Select a section to review credentials.',

@@ -247,11 +247,3 @@ projects:
       - Imposed 4th-order Bézier virtual constraints to reduce a 3-link planar biped onto a 2-DOF Hybrid Zero Dynamics manifold, optimized with fmincon
       - Synthesized input-output feedback linearization and validated 1.73 m/s walking at 1.1584 MCOT, Poincaré-stable over 15 steps
 
-  - id: underwater
-    name: Underwater Image Mosaicing with Factor Graphs
-    dates: 2025
-    domains: [slam, cv]
-    stack: [Python, GTSAM, OpenCV]
-    bullets:
-      - Estimated pairwise homographies from SIFT matches across 28 underwater frames and added loop-closure constraints
-      - Produced a drift-free global mosaic via GTSAM factor-graph optimization in light-attenuated, feature-sparse conditions
