@@ -641,7 +641,8 @@ button {
 .proj-card.is-featured .proj-card-media {
   aspect-ratio: 16 / 8.5;
 }
-.proj-card-media img {
+.proj-card-media img,
+.proj-card-media video {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -651,7 +652,9 @@ button {
   transition: transform 0.5s ease;
 }
 .proj-card:hover .proj-card-media img,
-.proj-card:focus-visible .proj-card-media img {
+.proj-card:focus-visible .proj-card-media img,
+.proj-card:hover .proj-card-media video,
+.proj-card:focus-visible .proj-card-media video {
   transform: scale(1.07);
 }
 .proj-card-media::after {
@@ -801,7 +804,8 @@ button {
 
 @media (prefers-reduced-motion: reduce) {
   .proj-card,
-  .proj-card-media img {
+  .proj-card-media img,
+  .proj-card-media video {
     transition: none;
   }
   .proj-card:hover,
@@ -1238,6 +1242,33 @@ button {
 }
 .detail-img-grid img:hover {
   border-color: var(--accent);
+}
+
+.detail-media-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+.detail-media-item {
+  margin: 0;
+}
+.detail-media-item video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background-color: #000;
+  transition: border-color var(--transition-speed);
+}
+.detail-media-item video:hover {
+  border-color: var(--accent);
+}
+.detail-media-item figcaption {
+  margin-top: 6px;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--text-secondary);
 }
 
 .modal-benchmarks-box {

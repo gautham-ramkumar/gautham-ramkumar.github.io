@@ -299,27 +299,19 @@ export const catData = [
         { num: '~14 s', label: 'trigger to verdict, no false triggers' },
         { num: '3 of 5', label: 'unguarded runs crashed into the mirror' }
       ],
-      stack: ['Python', 'NumPy', 'SciPy', 'OpenCV', 'Isaac Sim', 'Unitree G1']
-    }
-  ],
-
-  // Project 13: Stereo VIO Calibration & Tuning (Category: State Estimation)
-  [
-    {
-      t: 'Stereo VIO Calibration & Tuning',
-      lbl: 'Pose Accuracy',
-      val: '+34.3%',
-      tags: ['VIO', 'Kalibr', 'GTSAM', 'ROS2'],
-      date: 'Jan 2025 – Apr 2025',
-      situation: 'A stereo visual-inertial odometry system is only as good as its calibration and noise parameters, and tuning them meant recompiling the stack for every change.',
-      action: 'Calibrated and tuned a stereo VIO stack built on C++, ROS 2 and GTSAM/iSAM2, using Kalibr for stereo-inertial calibration and Docker for the environment. Exposed 9 ROS 2 parameters so the tuning loop needed launch-file edits only, with no recompilation.',
-      result: 'Improved relative pose accuracy by 34.3% and cut distance drift by 37.0% on an 81.47 m trajectory. Found that tightening IMU noise density 5.5× caused a 6× ATE blowup from over-trusting acceleration, and traced the remaining error to 3–5 px upstream Kalibr reprojection noise in the SVD-based VO estimator.',
-      metrics: [
-        { num: '+34.3%', label: 'relative pose accuracy' },
-        { num: '−37.0%', label: 'distance drift on an 81.47 m trajectory' },
-        { num: '9', label: 'ROS 2 parameters exposed, no recompilation' }
-      ],
-      stack: ['C++', 'ROS2', 'GTSAM/iSAM2', 'Kalibr', 'Docker']
+      stack: ['Python', 'NumPy', 'SciPy', 'OpenCV', 'Isaac Sim', 'Unitree G1'],
+      media: [
+        {
+          src: 'media/mirrorguard_guarded.mp4',
+          poster: 'media/mirrorguard_guarded.jpg',
+          caption: 'With the mirror check: the guarded G1 stops, verifies the mirror with a random arm challenge and goes through the door.'
+        },
+        {
+          src: 'media/mirrorguard_unguarded.mp4',
+          poster: 'media/mirrorguard_unguarded.jpg',
+          caption: 'Without the mirror check: the unguarded G1 walks into the mirror.'
+        }
+      ]
     }
   ]
 ];
@@ -339,7 +331,7 @@ export const categoryGroups = [
   {
     title: 'State Estimation',
     color: '#9b8ce0',
-    indices: [2, 13]
+    indices: [2]
   },
   {
     title: 'SLAM',
@@ -426,7 +418,6 @@ export const skillGroups = [
       'Pose Estimation',
       'EKF',
       'Visual-Inertial Odometry',
-      'Stereo-Inertial Calibration (Kalibr)',
       'GTSAM/iSAM2',
       'IMU Preintegration',
       'Dead Reckoning'

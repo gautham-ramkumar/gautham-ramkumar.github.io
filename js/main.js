@@ -96,7 +96,15 @@ function getCategorySlug(index) {
   return group ? (categorySlugs[group.title] || 'all') : 'all';
 }
 
+function prefersReducedMotion() {
+  return typeof window !== 'undefined' && window.matchMedia
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
 function getProjectThumb(proj) {
+  if (proj.media && proj.media.length > 0 && proj.media[0].src) {
+    return { kind: 'local-video', src: proj.media[0].src, poster: proj.media[0].poster || '' };
+  }
   if (proj.video) {
     const match = proj.video.match(/embed\/([A-Za-z0-9_-]+)/);
     if (match) {
@@ -152,6 +160,18 @@ function renderProjects() {
     `).join('');
   }
 
+  const reduceMotion = prefersReducedMotion();
+  const renderThumb = (thumb, proj) => {
+    if (thumb.kind === 'local-video') {
+      if (reduceMotion && thumb.poster) {
+        return `<img src="${thumb.poster}" alt="${proj.t}" loading="lazy">`;
+      }
+      return `<video src="${thumb.src}"${thumb.poster ? ` poster="${thumb.poster}"` : ''}${reduceMotion ? '' : ' autoplay'} muted loop playsinline preload="metadata" aria-hidden="true"></video>`;
+    }
+    if (thumb.src) return `<img src="${thumb.src}" alt="${proj.t}" loading="lazy">`;
+    return `<div class="proj-card-fallback"><span>${proj.val}</span></div>`;
+  };
+
   gallery.className = 'projects-gallery';
   gallery.innerHTML = ordered.map((index, displayIdx) => {
     const proj = catData[index][0];
@@ -169,9 +189,7 @@ function renderProjects() {
         aria-label="${proj.t}"
       >
         <div class="proj-card-media${thumb.kind === 'none' ? ' is-fallback' : ''}">
-          ${thumb.src
-            ? `<img src="${thumb.src}" alt="${proj.t}" loading="lazy">`
-            : `<div class="proj-card-fallback"><span>${proj.val}</span></div>`}
+          ${renderThumb(thumb, proj)}
           ${thumb.kind === 'video' ? '<span class="proj-card-play" aria-hidden="true">▶</span>' : ''}
           <span class="proj-card-cat">${group ? group.title : ''}</span>
         </div>
@@ -338,7 +356,19 @@ function initProjectModal() {
               <iframe src="${project.video}" allow="autoplay; encrypted-media" allowfullscreen></iframe>
             </div>
           ` : ''}
-          
+
+          <!-- Local video media -->
+          ${project.media && project.media.length > 0 ? `
+            <div class="detail-media-list">
+              ${project.media.map(m => `
+                <figure class="detail-media-item">
+                  <video src="${m.src}"${m.poster ? ` poster="${m.poster}"` : ''} controls muted loop playsinline${prefersReducedMotion() ? '' : ' autoplay'} preload="metadata"></video>
+                  ${m.caption ? `<figcaption>${m.caption}</figcaption>` : ''}
+                </figure>
+              `).join('')}
+            </div>
+          ` : ''}
+
           <!-- Image grid -->
           ${project.images && project.images.length > 0 ? `
             <div class="detail-img-grid ${project.images.length > 1 ? 'two-cols' : ''}">
@@ -416,6 +446,11 @@ function initProjectModal() {
     // Stop playing video on close
     const iframe = modalBody.querySelector('iframe');
     if (iframe) iframe.src = '';
+    modalBody.querySelectorAll('video').forEach(v => {
+      v.pause();
+      v.removeAttribute('src');
+      v.load();
+    });
   }
   
   function tryOpenCard(target) {
