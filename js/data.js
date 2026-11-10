@@ -454,18 +454,24 @@ export const projects = [
 ];
 
 // Featured projects (shown first, as large cards), by slug.
-export const featuredProjectSlugs = ['backstop', 'mirrorguard', 'darksight', 'gaussian-splatting'];
+// Every project with a video (local clip or YouTube demo) is featured.
+export const featuredProjectSlugs = [
+  'backstop',
+  'mirrorguard',
+  'yeschef',
+  'darksight',
+  'gaussian-splatting',
+  'rtab-map-tunnels',
+  'wall-defect-detection'
+];
 
 // Display order for everything else (anything not listed is appended).
 export const projectOrder = [
   'ekf-localization',
   'camera-lidar-calibration',
-  'yeschef',
   'hzd-biped',
-  'rtab-map-tunnels',
   'structure-from-motion',
   'semantic-color-constancy',
-  'wall-defect-detection',
   'low-light-unet'
 ];
 
