@@ -25,14 +25,14 @@ export const catData = [
     {
       t: 'DarkSight — Low-Light Perception',
       lbl: 'Real-time',
-      val: '21 FPS',
+      val: '17 FPS',
       tags: ['PyTorch', 'TensorRT', 'Zero-3DCE', 'YOLOv8'],
-      date: '2025 – Present',
+      date: 'Mar 2026 – May 2026',
       situation: 'Robotic perception pipelines fail in sub-1 lux environments; off-the-shelf enhancement tools optimise for human aesthetics and lack temporal coherence across video frames.',
-      action: 'Designed DS3DConv encoder-decoder with ConvGRU recurrent bottleneck for frame memory, RAFT optical-flow warping for temporal consistency, and a perception-aware loss tuned to YOLOv8 features; exported to TensorRT INT8/FP16 for edge deployment.',
-      result: '17.25 dB PSNR, 0.99 ORB stability; Deployed real-time low-light enhancement on Intel RealSense D435 with adaptive frame skipping, achieving 57ms inference latency at 21 FPS (360p, PyTorch backend); TensorRT engine exported for production deployment.',
+      action: 'Trained a zero-reference enhancement model on 18,000 unpaired frames. Designed DS3DConv encoder-decoder with ConvGRU recurrent bottleneck for frame memory, RAFT optical-flow warping for temporal consistency, and a perception-aware loss tuned to YOLOv8 features; exported to TensorRT INT8/FP16 for edge deployment.',
+      result: '17.25 dB PSNR, 0.99 ORB stability; Deployed real-time low-light enhancement on Intel RealSense D435 with adaptive frame skipping, achieving 57ms inference latency at 17 FPS (360p, PyTorch backend); TensorRT engine exported for production deployment.',
       metrics: [
-        { num: '21 FPS', label: 'at 360p · PyTorch backend · TensorRT export' },
+        { num: '17 FPS', label: 'at 360p · PyTorch backend · TensorRT export' },
         { num: '17.25', label: 'dB PSNR · 0.99 ORB stability (v2.1 recurrent)' },
         { num: '57ms', label: 'inference latency on RealSense D435' }
       ],
@@ -50,13 +50,13 @@ export const catData = [
       val: '-19.49ms',
       tags: ['Calibration', 'Multi-Sensor', 'C++', 'Oct 2025'],
       date: 'Oct 2025 – Dec 2025',
-      situation: 'Camera-LiDAR sensor fusion requires sub-millisecond temporal synchronization; manual target-based calibration is tedious and cannot adapt to dynamic online sensor latency.',
+      situation: 'Final project for EECE7150 Autonomous Field Robotics (Northeastern). Camera-LiDAR sensor fusion requires sub-millisecond temporal synchronization; manual target-based calibration is tedious and cannot adapt to dynamic online sensor latency.',
       action: 'Implemented a stamp-primary temporal sync pipeline with a bounded residual path. The system anchors on stable hardware capture timestamps (tau_stamp) and then lets cross-modal edge alignment correct a small, plausible latency bias (tau_res), avoiding failure modes from scene-driven aliasing.',
-      result: 'Estimated a stable -19.49 ms offset on the huntington dataset (1500 camera frames, 750 LiDAR scans). The bounded residual approach prevented large >150 ms swings seen in naive unconstrained edge-score searches.',
+      result: 'Converged the temporal correction to a stable -19.49 ms (≈ −19.5 ms) offset on the huntington dataset (1500 camera frames, 750 LiDAR scans), holding within a 1.5 ms band across 15 sliding windows. Diagnosed and rejected a spurious 150 ms alias that naive unconstrained edge-score searches latched onto, keeping a corrupted timing fix out of the pipeline.',
       metrics: [
         { num: '-19.49ms', label: 'time offset estimated' },
         { num: '±50ms', label: 'bounded residual clip' },
-        { num: '1.5ms', label: 'stability across windows' }
+        { num: '1.5ms', label: 'stability band across 15 sliding windows' }
       ],
       stack: ['Python', 'C++', 'GTSAM', 'ROS2', 'Open3D', 'OpenCV'],
       github: 'https://github.com/gautham-ramkumar/Camera-LiDAR-Temporal-Calibration',
@@ -95,8 +95,8 @@ export const catData = [
       tags: ['ROS2', 'ZED Mini', 'LiDAR', 'IMU'],
       date: 'Sep 2025 – Oct 2025',
       situation: 'Underground tunnels lack GPS and have repetitive visual structure, making drift-free 3D mapping extremely challenging for a mobile robot.',
-      action: 'Deployed RTAB-Map on a ZED Mini stereo camera in ROS2; brought up a full multi-sensor suite (LiDAR, VectorNav IMU) with calibrated coordinate transforms; validated loop closure detection and pose graph consistency across long trajectories.',
-      result: 'Achieved 90% alignment to ground truth tunnel layout in real-time, fully GPS-denied conditions.',
+      action: 'Deployed RTAB-Map on a ZED Mini stereo camera in ROS2; brought up a full multi-sensor suite (LiDAR, VectorNav IMU) with calibrated coordinate transforms; validated loop closure detection and pose graph consistency across long trajectories. Fixed noisy handheld visual odometry by mounting the ZED Mini on a rolling chair, which stabilized loop closure.',
+      result: 'Mapped 250 m of GPS-denied underground tunnel under low-texture conditions, achieving 90% alignment to the ground truth tunnel layout in real time.',
       metrics: [
         { num: '90%', label: 'ground truth alignment' },
         { num: 'Real HW', label: 'ZED Mini · LiDAR · VectorNav IMU' },
@@ -115,13 +115,13 @@ export const catData = [
       lbl: 'Cost Reduction',
       val: '~70%',
       tags: ['GTSAM', 'OpenCV', 'Bundle Adj.', 'Python'],
-      date: '2025',
+      date: 'Oct 2025 – Nov 2025',
       situation: 'Creating accurate 3D models from collections of unordered 2D images is computationally expensive and prone to scale and gauge ambiguity.',
-      action: 'Built a full Structure from Motion pipeline from scratch — no high-level reconstruction utilities. Starting from 24 monocular images: SIFT features, RANSAC outlier rejection, essential matrix decomposition, triangulation, and non-linear bundle adjustment over ~5.5k landmarks via GTSAM factor graphs.',
-      result: 'Achieved a ~60-70% reduction in bundle adjustment cost with a final reprojection RMSE of ~3-4 pixels. Successfully registered all 24 views and generated sparse models compatible with COLMAP GUI.',
+      action: 'Built a full incremental Structure from Motion pipeline from scratch — no high-level reconstruction utilities. Starting from 24 monocular images: SIFT features, RANSAC outlier rejection, essential matrix decomposition, triangulation, bidirectional PnP-RANSAC registration of new views, and non-linear bundle adjustment with GTSAM Huber factors and Levenberg–Marquardt optimization. Added an optional SuperPoint + LightGlue learned front end.',
+      result: 'Reconstructed 5,500+ sparse 3D landmarks and cut bundle adjustment cost by ~60-70% with a final reprojection RMSE of ~3-4 pixels. Registered all 24 images to a global frame and exported COLMAP-compatible sparse models.',
       metrics: [
         { num: '~60-70%', label: 'BA cost reduction' },
-        { num: '~5.5k', label: 'sparse landmarks optimized' },
+        { num: '5,500+', label: 'sparse landmarks optimized' },
         { num: '~3-4 px', label: 'final reprojection RMSE' }
       ],
       stack: ['Python', 'OpenCV', 'GTSAM', 'Open3D', 'NumPy'],
@@ -140,7 +140,7 @@ export const catData = [
       date: 'Jan 2026 – Mar 2026',
       situation: '3D Gaussian Splatting training recipes target large datasets; small-scale scenes overfit at standard iteration counts with no clear stopping criterion.',
       action: 'Implemented the full Gaussian optimization pipeline from scratch — densification, cloning, splitting, pruning, and adaptive parameter control — using the official EWA CUDA rasterizer for the rendering backend; monitored PSNR across checkpoints on a 24-image Buddha dataset; containerised with Docker and GitHub Actions CI/CD.',
-      result: '31.42 dB PSNR and SSIM 0.9531 at 7,500 iterations — over 16 dB better than the 30k checkpoint where Gaussians overfit into needle-like rendering artifacts.',
+      result: '31.42 dB PSNR and SSIM 0.9531 at 7,500 iterations. The default 30,000-iteration schedule collapses PSNR to 15.06 dB as Gaussians overfit into needle-like rendering artifacts, which informed an early-stop policy. COLMAP initialization beat custom SfM initialization by 2.49 dB PSNR at identical iteration counts.',
       metrics: [
         { num: '31.42', label: 'dB PSNR at 7,500 iterations' },
         { num: '0.9531', label: 'SSIM at 7,500 iterations' },
@@ -159,10 +159,10 @@ export const catData = [
       lbl: 'Color Accuracy',
       val: '+63%',
       tags: ['YOLOv8', 'PyTorch', 'COCO', 'Python'],
-      date: '2025',
-      situation: 'Global white balance algorithms fail under mixed or non-uniform light sources, introducing chromatic distortion.',
-      action: 'Developed illumination correction conditioned on semantic object identity. YOLOv8 identifies each object and applies per-category chromaticity priors learned from 5,600 COCO-derived images.',
-      result: 'Produces significantly more accurate correction under challenging or mixed lighting, achieving 63% color accuracy improvement.',
+      date: 'Oct 2025 – Dec 2025',
+      situation: 'Final project for CS7180 Advanced Perception (Northeastern). Global white balance algorithms fail under mixed or non-uniform light sources, introducing chromatic distortion.',
+      action: 'Developed illumination correction conditioned on semantic object identity. Fine-tuned YOLOv8 on 5,600 COCO-derived images instead of training a detector from scratch; each detected object contributes an object-aware chromaticity prior across 80 semantic classes. Optimized the backbone for CPU inference.',
+      result: 'Improved color constancy by 63% via object-aware chromaticity priors, validated across 4 lighting conditions spanning daylight to tungsten. 130 ms CPU inference per image enables GPU-free edge deployment.',
       metrics: [
         { num: '63%', label: 'color accuracy improvement' },
         { num: '130ms', label: 'CPU inference per image' },
@@ -204,16 +204,16 @@ export const catData = [
       val: '91.9%',
       tags: ['YOLOv5', 'RealSense', 'Jetson Nano'],
       date: 'Jan 2024 – Apr 2024',
-      situation: 'Manual wall inspection is slow and inconsistent; distinguishing cosmetic surface flaws from structural defects requires depth information not available from RGB alone.',
+      situation: 'B.Tech capstone at VIT Chennai. Manual wall inspection is slow and inconsistent; distinguishing cosmetic surface flaws from structural defects requires depth information not available from RGB alone.',
       action: 'Annotated a custom 1,300-image dataset covering cracks, bubbles, dents, and scratches via LabelImg and Roboflow; fine-tuned YOLOv5 and deployed on NVIDIA Jetson Nano; integrated Intel RealSense D435 depth data for 3D localisation of each detected defect.',
-      result: '91.9% precision at real-time speeds on the Jetson Nano, with 3D defect localisation enabling classification of surface vs. structural damage.',
+      result: '91.9% precision and 0.97 recall at real-time speeds on the Jetson Nano, holding 0.986 AP on the primary defect class across two classes under variable-lighting field conditions. 3D defect localisation enables classification of surface vs. structural damage.',
       metrics: [
-        { num: '91.9%', label: 'precision on Jetson Nano' },
-        { num: '1,300', label: 'custom annotated images' },
-        { num: '3D', label: 'defect localization via RealSense' }
+        { num: '91.9%', label: 'precision · 0.97 recall on Jetson Nano' },
+        { num: '0.986', label: 'AP on the primary defect class' },
+        { num: '1,300', label: 'custom annotated images' }
       ],
       stack: ['Python', 'YOLOv5', 'NVIDIA Jetson Nano', 'Intel RealSense', 'Roboflow'],
-      github: 'https://github.com/gautham-ramkumar',
+      github: 'https://github.com/gautham-ramkumar/Wall-Detection-using-YOLOv5',
       video: 'https://www.youtube.com/embed/y-EcAAwTE80'
     }
   ],
@@ -225,40 +225,101 @@ export const catData = [
       lbl: 'Walking Speed',
       val: '1.73 m/s',
       tags: ['MATLAB', 'HZD', 'fmincon', '2026'],
-      date: '2026',
-      situation: 'Classical ZMP-based biped controllers suppress the leg\'s natural pendulum dynamics to stay upright, producing slow, energetically expensive gaits. Designing a provably stable walking cycle for an underactuated 3-link planar biped remains a hard hybrid-control problem.',
+      date: 'Jan 2026 – May 2026',
+      situation: 'Course project for EECE7398 Legged Robotics (Northeastern), built in a team of 4. Classical ZMP-based biped controllers suppress the leg\'s natural pendulum dynamics to stay upright, producing slow, energetically expensive gaits. Designing a provably stable walking cycle for an underactuated 3-link planar biped remains a hard hybrid-control problem.',
       action: 'Derived full swing-phase Lagrangian dynamics and a heel-strike impact map symbolically; imposed 4th-order Bézier virtual constraints to reduce the system onto a 2-DOF Hybrid Zero Dynamics manifold; optimized the periodic orbit with fmincon for minimum control effort; synthesized an exact input-output feedback linearization controller and validated it with a 15-step full-order simulation and Poincaré return-map analysis.',
-      result: 'Closed-loop walking at ≈1.73 m/s with Mechanical Cost of Transport 1.1584. Poincaré error decayed geometrically over 15 steps, confirming exponential orbital stability of the designed limit cycle.',
+      result: 'Closed-loop walking at ≈1.73 m/s with Mechanical Cost of Transport 1.1584. Poincaré error decayed geometrically over 15 steps, confirming exponential orbital stability of the designed limit cycle. Written up as an IEEE-format conference-style report.',
       metrics: [
         { num: '1.73 m/s', label: 'closed-loop walking speed' },
         { num: '1.1584', label: 'Mechanical Cost of Transport' },
         { num: '15 steps', label: 'full-order sim, Poincaré-stable' }
       ],
-      stack: ['MATLAB', 'HZD', 'Feedback Linearization', 'fmincon', 'Bézier Virtual Constraints'],
+      stack: ['MATLAB', 'HZD', 'Feedback Linearization', 'fmincon', 'ode45', 'Bézier Virtual Constraints'],
       github: 'https://github.com/gautham-ramkumar/hzd-biped-control',
       images: ['images/HZD_anim_snapshot.png', 'images/HZD_trajectories.png', 'images/HZD_phase.png']
     }
   ],
 
-  // Project 10: YesChef — Voice-Controlled Cooking Robot (Category: Control & Manipulation)
+  // Project 10: YesChef — Voice-Controlled Robotic Sandwich Assembly (Category: Control & Manipulation)
   [
     {
-      t: 'YesChef — Voice-Controlled Cooking',
+      t: 'YesChef — Voice-Controlled Sandwich Assembly',
       lbl: 'Hackathon',
       val: '2nd Place',
       tags: ['Whisper', 'Qwen', 'VLM', 'Aug 2026'],
       date: 'Aug 2026',
-      situation: 'Cooking robots need to interpret spoken recipes, see the workspace, and act — without cloud APIs that add latency and privacy risk. The Revolute Hackathon tasked teams with making a robot cook, end to end, in a weekend.',
-      action: 'Built a fully local voice-to-action pipeline: Whisper for speech-to-text, Qwen 2.5 3B as a vision-language model for scene understanding, and Qwen 2.5 3B as a language model for instruction parsing and action planning. All three models ran on-device to drive robotic manipulation for cooking tasks.',
-      result: 'Won 2nd place at the Revolute Hackathon (Aug 1–2 2026) with a working voice-controlled cooking demo running three local models in the loop.',
+      situation: 'A robot that assembles a sandwich from a spoken request has to understand the request, see the workspace, and act — without cloud APIs that add latency and privacy risk. Built and shipped in one weekend at the Revolute Hackathon.',
+      action: 'Chained Whisper (speech-to-text), Qwen2.5-3B (instruction parsing and planning) and Qwen2.5-VL-3B (scene understanding) into trajectory execution on a 6-DoF arm, all on-device on an NVIDIA Jetson Orin Nano, using LeRobot and SocketCAN. Constrained the 3B-parameter VLM to require legible on-package text before authorizing any pick. Fixed a leader-arm unwrap fault by rescaling gripper directions from 6.0 to 3.0, spreading 270° of travel across 90°.',
+      result: 'Won 2nd place at the Revolute Hackathon (Aug 1–2 2026) with a working voice-controlled sandwich-assembly demo running three local models in the loop.',
       metrics: [
         { num: '2nd', label: 'place at Revolute Hackathon' },
-        { num: '3 models', label: 'Whisper + Qwen 2.5 VLM + Qwen 2.5 LM' },
-        { num: 'On-device', label: 'fully local inference, no cloud APIs' }
+        { num: '3 models', label: 'Whisper → Qwen2.5-3B → Qwen2.5-VL-3B' },
+        { num: 'On-device', label: 'Jetson Orin Nano, no cloud APIs' }
       ],
-      stack: ['Whisper', 'Qwen 2.5 VLM', 'Qwen 2.5 LM', 'Robotic Manipulation'],
+      stack: ['Python', 'Whisper', 'Qwen2.5-3B', 'Qwen2.5-VL-3B', 'LeRobot', 'SocketCAN', 'Jetson Orin Nano'],
       video: 'https://www.youtube.com/embed/7AaO0o-qSSI',
       demo: 'https://youtu.be/7AaO0o-qSSI'
+    }
+  ],
+
+  // Project 11: Backstop — Runtime Failure Prediction for VLA Policies (Category: Robot Learning)
+  [
+    {
+      t: 'Backstop — Runtime Failure Prediction for VLA Policies',
+      lbl: 'Earlier Stop',
+      val: '0.67 s',
+      tags: ['VLA', 'SmolVLA', 'LIBERO', 'Aug 2026'],
+      date: 'Aug 2026 – Present',
+      situation: 'Vision-Language-Action policies map camera images and a language instruction straight to robot actions, and they fail silently: closing the gripper on air, then stalling until a timeout. A frozen policy offers no built-in signal for when its next actions should not be trusted.',
+      action: 'Built Backstop, a supervisory layer that watches a frozen SmolVLA policy (HuggingFaceVLA/smolvla_libero) in LIBERO simulation and decides whether to trust its next actions, without modifying or retraining the policy. Recorded a LeRobot dataset keeping the full 50-step action chunk and K=4 sampled chunks per step across perturbation families (lighting, camera, object pose, distractors, action noise, absent or paraphrased language). The headline guard combines action-chunk disagreement with a stopwatch, with thresholds set from good runs only under a 5% false-stop budget; an OWLv2 missing-object gate checks the scene before the arm moves. Shipped the online guard in Python plus a header-only C++17 port.',
+      result: 'Reproduced a 70.0% SmolVLA baseline on LIBERO-Spatial (100 episodes; all 30 failures are stalls at the 280-step cap). The guard ends failing runs 13.4 steps (0.67 s) sooner than a stopwatch on average at a 4.3% held-out false-stop rate (5% budget), catching every failure across 20 random splits. The OWLv2 gate stops 28 of 30 absent-object runs before the arm moves, and the C++17 port is bit-identical to Python over 500 episodes. A recovery behaviour (lift, back off, retry) did not help: it rescued 1 of 19 failures, as the policy returned to the same stall.',
+      metrics: [
+        { num: '0.67 s', label: 'earlier stop than a stopwatch (13.4 steps)' },
+        { num: '4.3%', label: 'held-out false-stop under a 5% budget' },
+        { num: '28/30', label: 'absent-object runs stopped before the arm moves' }
+      ],
+      stack: ['Python', 'LeRobot', 'MuJoCo', 'LIBERO', 'SmolVLA', 'C++17'],
+      github: 'https://github.com/gautham-ramkumar/Backstop_VLA'
+    }
+  ],
+
+  // Project 12: MirrorGuard — Physics-Based Mirror Detection (Category: Robot Learning)
+  [
+    {
+      t: 'MirrorGuard — Physics-Based Mirror Detection',
+      lbl: 'Mirror Verified',
+      val: '7/7',
+      tags: ['Unitree G1', 'Isaac Sim', 'Stereo', 'In progress'],
+      date: '2026 – Present',
+      situation: 'Stereo depth and LiDAR see a mirror as a doorway into a believable phantom room, so the planner drives straight into it; learned mirror detectors and VLMs get fooled too. In progress, in simulation.',
+      action: 'Interrogate, don\'t classify: a Unitree G1 performs a random sequence of single-limb moves and checks the suspect region against its own proprioception for three reflection signatures (chirality, synchrony and trajectory match). A randomization test against 999 surrogate sequences gives an exact p-value (α = 0.01), with up to 3 rounds combined via Fisher\'s method. Verdicts are MIRROR, REAL_AGENT, LAGGED, NO_CORRESPONDENCE or INCONCLUSIVE, failing safe to "obstacle"; motion gating returns a retry when more than 60% of motion is not explained by the robot\'s own moves. For navigation, head stereo (OpenCV SGBM) feeds an occupancy grid; a "depth behind a known wall" trigger sends the robot to 1.5 m to verify, then the mirror is stored as solid and the path replanned with A*.',
+      result: 'In NVIDIA Isaac Sim 6.2 house runs, the guarded robot verified the mirror in one round in 7 of 7 runs (p = 0.001, ~14 s from trigger to verdict) with no false triggers, while the unguarded robot crashed into the mirror in 3 of 5 runs. Simulation only so far; currently fixing head-camera shake, where a waving arm jolts the body enough to swamp the arm signal.',
+      metrics: [
+        { num: '7/7', label: 'guarded runs verified in one round (p = 0.001)' },
+        { num: '~14 s', label: 'trigger to verdict, no false triggers' },
+        { num: '3 of 5', label: 'unguarded runs crashed into the mirror' }
+      ],
+      stack: ['Python', 'NumPy', 'SciPy', 'OpenCV', 'Isaac Sim', 'Unitree G1']
+    }
+  ],
+
+  // Project 13: Stereo VIO Calibration & Tuning (Category: State Estimation)
+  [
+    {
+      t: 'Stereo VIO Calibration & Tuning',
+      lbl: 'Pose Accuracy',
+      val: '+34.3%',
+      tags: ['VIO', 'Kalibr', 'GTSAM', 'ROS2'],
+      date: 'Jan 2025 – Apr 2025',
+      situation: 'A stereo visual-inertial odometry system is only as good as its calibration and noise parameters, and tuning them meant recompiling the stack for every change.',
+      action: 'Calibrated and tuned a stereo VIO stack built on C++, ROS 2 and GTSAM/iSAM2, using Kalibr for stereo-inertial calibration and Docker for the environment. Exposed 9 ROS 2 parameters so the tuning loop needed launch-file edits only, with no recompilation.',
+      result: 'Improved relative pose accuracy by 34.3% and cut distance drift by 37.0% on an 81.47 m trajectory. Found that tightening IMU noise density 5.5× caused a 6× ATE blowup from over-trusting acceleration, and traced the remaining error to 3–5 px upstream Kalibr reprojection noise in the SVD-based VO estimator.',
+      metrics: [
+        { num: '+34.3%', label: 'relative pose accuracy' },
+        { num: '−37.0%', label: 'distance drift on an 81.47 m trajectory' },
+        { num: '9', label: 'ROS 2 parameters exposed, no recompilation' }
+      ],
+      stack: ['C++', 'ROS2', 'GTSAM/iSAM2', 'Kalibr', 'Docker']
     }
   ]
 ];
@@ -278,7 +339,7 @@ export const categoryGroups = [
   {
     title: 'State Estimation',
     color: '#9b8ce0',
-    indices: [2]
+    indices: [2, 13]
   },
   {
     title: 'SLAM',
@@ -289,6 +350,11 @@ export const categoryGroups = [
     title: 'Control & Manipulation',
     color: '#6db3f2',
     indices: [9, 10]
+  },
+  {
+    title: 'Robot Learning',
+    color: '#8cc084',
+    indices: [11, 12]
   }
 ];
 
@@ -328,22 +394,22 @@ export const experience = [
     desc: 'Grew automated test coverage from 44 to 145 tests across a two-job CI pipeline. Reproduced a 70% SmolVLA task-success baseline in MuJoCo on an 8 GB GPU with pinned dependencies. Built a dataset verifier that catches three silent defects (zeroed chunks, wrong state convention, missing unnormalization), and Backstop, a VLA failure monitor reaching 85.4% detection at 2.9% false-stop on held-out episodes.'
   },
   {
-    period: '2024 – 2026',
-    role: 'Master of Science — Robotics',
+    period: 'Fall 2024 – May 2026',
+    role: 'Master of Science — Robotics (Concentration: ECE)',
     org: 'Northeastern University · Boston, MA',
-    desc: 'Concentration in ECE. Deep focus on sensor fusion, SLAM, state estimation, and deep learning perception for autonomous systems. Coursework: Advanced Perception, Robot Sensing & Navigation, Autonomous Field Robotics, Mobile Robotics, Robot Mechanics & Controls.'
+    desc: 'GPA 3.636/4.0. Deep focus on sensor fusion, SLAM, state estimation, and deep learning perception for autonomous systems. Coursework: Advanced Perception, Robot Sensing & Navigation, Autonomous Field Robotics, Mobile Robotics, Robot Mechanics & Controls, Control Systems Engineering, Legged Robotics.'
   },
   {
-    period: '2023',
-    role: 'IoT Engineering Intern',
-    org: 'SmartInternz',
-    desc: 'Built real-time sensing pipelines and cloud logging systems using IoT hardware. Hands-on work with embedded systems, sensor data acquisition, and cloud infrastructure integration.'
+    period: 'May 2023 – Jul 2023',
+    role: 'Internet of Things Intern',
+    org: 'SmartInternz · Chennai, India',
+    desc: 'Held 1 cm distance accuracy in a real-time ultrasonic sensing pipeline for automated access control. Streamed Firebase telemetry at 1 Hz with automated alerts across 10 concurrent authenticated users. Delivered a full embedded-to-mobile system end to end within a 3-month internship.'
   },
   {
-    period: '2020 – 2024',
+    period: '2020 – May 2024',
     role: 'B.Tech — Electronics & Communications Engineering',
     org: 'Vellore Institute of Technology (VIT) · Chennai, India',
-    desc: 'Foundational coursework in signal processing, embedded systems, digital communications, and electronics engineering. Final-year project in real-time defect detection using computer vision on edge hardware.'
+    desc: 'GPA 3.48/4.0. Foundational coursework in signal processing, embedded systems, digital communications, and electronics engineering. Capstone (Jan–Apr 2024): real-time surface defect detection with YOLOv5 on an NVIDIA Jetson Nano with Intel RealSense depth.'
   }
 ];
 
@@ -357,7 +423,13 @@ export const skillGroups = [
       'Sensor Fusion',
       'Factor Graph Optimization',
       'Bundle Adjustment',
-      'Pose Estimation'
+      'Pose Estimation',
+      'EKF',
+      'Visual-Inertial Odometry',
+      'Stereo-Inertial Calibration (Kalibr)',
+      'GTSAM/iSAM2',
+      'IMU Preintegration',
+      'Dead Reckoning'
     ]
   },
   {
@@ -370,7 +442,11 @@ export const skillGroups = [
       '3D Reconstruction (SfM)',
       'Feature Matching (SIFT/ORB)',
       'Point Cloud Processing',
-      'Loop Closure Detection'
+      'Loop Closure Detection',
+      '3D Gaussian Splatting',
+      'Structure from Motion',
+      'COLMAP',
+      'Occupancy Mapping'
     ]
   },
   {
@@ -386,7 +462,9 @@ export const skillGroups = [
       'PyTorch',
       'TensorRT',
       'Docker',
-      'Git'
+      'Git',
+      'CUDA',
+      'Eigen'
     ]
   },
   {
@@ -402,7 +480,9 @@ export const skillGroups = [
       'Edge Deployment',
       'Loss Function Design',
       'Vision-Language Models',
-      'Whisper (Speech-to-Text)'
+      'Whisper (Speech-to-Text)',
+      'Vision-Language-Action Models',
+      'Qwen2.5-VL'
     ]
   },
   {
@@ -412,7 +492,8 @@ export const skillGroups = [
       'LiDAR',
       'VectorNav IMU',
       'NVIDIA Jetson Nano',
-      'Intel RealSense D435'
+      'Intel RealSense D435',
+      'NVIDIA Jetson Orin Nano'
     ]
   },
   {
@@ -424,7 +505,18 @@ export const skillGroups = [
       'Mobile Robotics',
       'Robot Mechanics & Controls',
       'Control Systems Engineering',
-      'Legged Robotics (HZD)'
+      'Legged Robotics (HZD)',
+      'Control: PID, LQR, MPC, SMC'
+    ]
+  },
+  {
+    title: 'Robot Learning',
+    items: [
+      'MuJoCo',
+      'LeRobot',
+      'Isaac Sim',
+      'Imitation-Learned Policy Evaluation',
+      'Perturbation-Based Testing'
     ]
   }
 ];

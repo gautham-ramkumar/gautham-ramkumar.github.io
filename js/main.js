@@ -83,7 +83,8 @@ const categorySlugs = {
   '3D Geometry': '3d',
   'State Estimation': 'est',
   'SLAM': 'slam',
-  'Control & Manipulation': 'ctrl'
+  'Control & Manipulation': 'ctrl',
+  'Robot Learning': 'rl'
 };
 
 function getCategoryGroup(index) {
