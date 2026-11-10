@@ -1,4 +1,4 @@
-import { catData, skillGroups, experience, categoryGroups, featuredProjectIndices } from './data.js';
+import { projects, projectDomains, featuredProjectSlugs, projectOrder, skillGroups, experience } from './data.js';
 
 // ============================================================
 // 1. APPLICATION INITIALIZATION
@@ -45,10 +45,12 @@ function initHashRouting() {
   const sections = document.querySelectorAll('.page-section');
   const navLinks = document.querySelectorAll('#header-nav .nav-link');
   
+  let currentSection = null;
   function handleRoute() {
     const rawHash = window.location.hash;
-    const hash = rawHash && ['#about', '#projects', '#skills', '#experience', '#contact'].includes(rawHash) 
-      ? rawHash 
+    const baseHash = rawHash.split('/')[0];
+    const hash = ['#about', '#projects', '#skills', '#experience', '#contact'].includes(baseHash)
+      ? baseHash
       : '#about';
     
     // 1. Swap active section
@@ -61,11 +63,13 @@ function initHashRouting() {
       link.classList.toggle('active', link.getAttribute('href') === hash);
     });
     
-    // 3. Scroll to top instantly
-    window.scrollTo(0, 0);
+    // 3. Scroll to top when the section changes (not when a project
+    //    detail view opens or closes inside #projects)
+    if (hash !== currentSection) window.scrollTo(0, 0);
+    currentSection = hash;
     
     // 4. Update window hash if empty/fallback triggered
-    if (window.location.hash !== hash) {
+    if (baseHash !== hash) {
       history.replaceState(null, null, hash);
     }
   }
@@ -75,54 +79,146 @@ function initHashRouting() {
 }
 
 // ============================================================
-// 4. DATA-DRIVEN DOM GENERATION
+// 4. PROJECTS: FILTERS, FEATURED CARDS AND GRID
 // ============================================================
 
-const categorySlugs = {
-  'Deep Learning': 'dl',
-  '3D Geometry': '3d',
-  'State Estimation': 'est',
-  'SLAM': 'slam',
-  'Control & Manipulation': 'ctrl',
-  'Robot Learning': 'rl'
-};
-
-function getCategoryGroup(index) {
-  return categoryGroups.find(g => g.indices.includes(index));
-}
-
-function getCategorySlug(index) {
-  const group = getCategoryGroup(index);
-  return group ? (categorySlugs[group.title] || 'all') : 'all';
-}
+const domainBySlug = Object.fromEntries(projectDomains.map(d => [d.slug, d]));
+const projectBySlug = Object.fromEntries(projects.map(p => [p.slug, p]));
 
 function prefersReducedMotion() {
   return typeof window !== 'undefined' && window.matchMedia
     && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-function getProjectThumb(proj) {
-  if (proj.media && proj.media.length > 0 && proj.media[0].src) {
+function escapeAttr(str) {
+  return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+}
+
+function youtubeId(url) {
+  const match = url && url.match(/embed\/([A-Za-z0-9_-]+)/);
+  return match ? match[1] : null;
+}
+
+// Ordered list: featured first, then projectOrder, then anything left over.
+function orderedProjects() {
+  const seen = new Set();
+  const out = [];
+  [...featuredProjectSlugs, ...projectOrder, ...projects.map(p => p.slug)].forEach(slug => {
+    if (!seen.has(slug) && projectBySlug[slug]) {
+      seen.add(slug);
+      out.push(projectBySlug[slug]);
+    }
+  });
+  return out;
+}
+
+function primaryDomain(proj) {
+  return domainBySlug[proj.domains[0]] || { title: '' };
+}
+
+// Card thumbnail: local muted loop > YouTube still > first image.
+function renderThumb(proj, { autoplay = true } = {}) {
+  const reduceMotion = prefersReducedMotion();
+  const alt = escapeAttr(`${proj.t}: preview`);
+  if (proj.media && proj.media.length && proj.media[0].src) {
+    const m = proj.media[0];
+    const fit = m.fit === 'contain' ? ' is-contain' : '';
+    if (reduceMotion && m.poster) {
+      return { cls: fit, html: `<img src="${m.poster}" alt="${alt}" loading="lazy">` };
+    }
     return {
-      kind: 'local-video',
-      src: proj.media[0].src,
-      poster: proj.media[0].poster || '',
-      fit: proj.media[0].fit === 'contain' ? 'contain' : 'cover'
+      cls: fit,
+      html: `<video src="${m.src}"${m.poster ? ` poster="${m.poster}"` : ''}${autoplay && !reduceMotion ? ' autoplay' : ''} muted loop playsinline preload="metadata" aria-hidden="true" tabindex="-1"></video>`
     };
   }
-  if (proj.video) {
-    const match = proj.video.match(/embed\/([A-Za-z0-9_-]+)/);
-    if (match) {
-      return {
-        kind: 'video',
-        src: `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg`
-      };
-    }
+  const yt = youtubeId(proj.video);
+  if (yt) {
+    return {
+      cls: '',
+      html: `<img src="https://img.youtube.com/vi/${yt}/hqdefault.jpg" alt="${alt}" loading="lazy"><span class="proj-card-play" aria-hidden="true">▶</span>`
+    };
   }
-  if (proj.images && proj.images.length > 0) {
-    return { kind: 'image', src: proj.images[0] };
+  if (proj.images && proj.images.length) {
+    return { cls: '', html: `<img src="${proj.images[0]}" alt="${alt}" loading="lazy">` };
   }
-  return { kind: 'none', src: '' };
+  return { cls: ' is-fallback', html: `<div class="proj-card-fallback"><span>${proj.metrics[0].num}</span></div>` };
+}
+
+function renderBadges(proj) {
+  const badges = [];
+  if (proj.status) badges.push(`<span class="proj-badge is-status">${proj.status}</span>`);
+  if (proj.private) badges.push('<span class="proj-badge">Private repo</span>');
+  return badges.join('');
+}
+
+function renderFeaturedCard(proj) {
+  const thumb = renderThumb(proj);
+  const titleId = `proj-title-${proj.slug}`;
+  return `
+    <article class="proj-feature" data-slug="${proj.slug}" data-domains="${proj.domains.join(' ')}" aria-labelledby="${titleId}">
+      <div class="proj-feature-media${thumb.cls}">
+        ${thumb.html}
+        <span class="proj-card-cat">${primaryDomain(proj).title}</span>
+      </div>
+      <div class="proj-feature-body">
+        <div class="proj-card-meta">
+          <span class="proj-card-date">${proj.date}</span>
+          <span class="proj-badges">${renderBadges(proj)}</span>
+        </div>
+        <h3 id="${titleId}" class="proj-feature-title">
+          <button type="button" class="proj-open" data-slug="${proj.slug}">${proj.t}</button>
+        </h3>
+        <p class="proj-hook">${proj.hook}</p>
+        ${proj.context ? `<p class="proj-context">${proj.context}</p>` : ''}
+        <dl class="proj-metric-row">
+          ${proj.metrics.slice(0, 3).map(m => `
+            <div class="proj-metric">
+              <dt class="proj-metric-val">${m.num}</dt>
+              <dd class="proj-metric-lbl">${m.label}</dd>
+            </div>`).join('')}
+        </dl>
+        <div class="proj-feature-footer">
+          <ul class="proj-stack" aria-label="Tech stack">
+            ${proj.stack.slice(0, 5).map(s => `<li>${s}</li>`).join('')}
+          </ul>
+          <span class="proj-cta" aria-hidden="true">Read case study →</span>
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+function renderCompactCard(proj) {
+  const thumb = renderThumb(proj);
+  const titleId = `proj-title-${proj.slug}`;
+  const m = proj.metrics[0];
+  return `
+    <article class="proj-card" data-slug="${proj.slug}" data-domains="${proj.domains.join(' ')}" aria-labelledby="${titleId}">
+      <div class="proj-card-media${thumb.cls}">
+        ${thumb.html}
+        <span class="proj-card-cat">${primaryDomain(proj).title}</span>
+      </div>
+      <div class="proj-card-body">
+        <div class="proj-card-meta">
+          <span class="proj-card-date">${proj.date}</span>
+          <span class="proj-badges">${renderBadges(proj)}</span>
+        </div>
+        <h3 id="${titleId}">
+          <button type="button" class="proj-open" data-slug="${proj.slug}">${proj.t}</button>
+        </h3>
+        <p class="proj-hook">${proj.hook}</p>
+        <div class="proj-card-footer">
+          <div class="proj-card-metric">
+            <span class="proj-card-metric-val">${m.num}</span>
+            <span class="proj-card-metric-lbl">${m.label}</span>
+          </div>
+          <ul class="proj-stack is-compact" aria-label="Tech stack">
+            ${proj.stack.slice(0, 3).map(s => `<li>${s}</li>`).join('')}
+          </ul>
+        </div>
+      </div>
+    </article>
+  `;
 }
 
 function renderProjects() {
@@ -130,115 +226,72 @@ function renderProjects() {
   const gallery = document.getElementById('projects-categories-container');
   if (!gallery) return;
 
-  const featuredSet = new Set(featuredProjectIndices);
-  const ordered = [
-    ...featuredProjectIndices.filter(i => catData[i]),
-    ...catData.map((_, i) => i).filter(i => !featuredSet.has(i))
-  ];
+  const ordered = orderedProjects();
+  const featuredSet = new Set(featuredProjectSlugs);
+  const featured = ordered.filter(p => featuredSet.has(p.slug));
+  const rest = ordered.filter(p => !featuredSet.has(p.slug));
 
   const filters = [
-    { title: 'All', slug: 'all', count: catData.length },
-    ...categoryGroups.map(group => ({
-      title: group.title,
-      slug: categorySlugs[group.title],
-      count: group.indices.length
-    }))
-  ];
+    { slug: 'all', title: 'All', count: projects.length },
+    ...projectDomains.map(d => ({ ...d, count: projects.filter(p => p.domains.includes(d.slug)).length }))
+  ].filter(f => f.count > 0);
 
   let activeFilter = 'all';
 
   if (filterBar) {
-    filterBar.setAttribute('role', 'tablist');
+    filterBar.setAttribute('role', 'group');
     filterBar.setAttribute('aria-label', 'Filter projects by domain');
-    filterBar.innerHTML = filters.map((filter, i) => `
-      <button
-        type="button"
-        class="proj-filter${filter.slug === activeFilter ? ' active' : ''}"
-        data-filter="${filter.slug}"
-        role="tab"
-        aria-selected="${filter.slug === activeFilter}"
-        id="proj-filter-${filter.slug}"
-      >
-        ${filter.title}
-        <span class="proj-filter-count">${filter.count}</span>
+    filterBar.innerHTML = filters.map(f => `
+      <button type="button" class="proj-filter${f.slug === activeFilter ? ' active' : ''}" data-filter="${f.slug}" aria-pressed="${f.slug === activeFilter}">
+        ${f.title}<span class="proj-filter-count" aria-hidden="true">${f.count}</span>
       </button>
     `).join('');
   }
 
-  const reduceMotion = prefersReducedMotion();
-  const renderThumb = (thumb, proj) => {
-    if (thumb.kind === 'local-video') {
-      if (reduceMotion && thumb.poster) {
-        return `<img src="${thumb.poster}" alt="${proj.t}" loading="lazy">`;
-      }
-      return `<video src="${thumb.src}"${thumb.poster ? ` poster="${thumb.poster}"` : ''}${reduceMotion ? '' : ' autoplay'} muted loop playsinline preload="metadata" aria-hidden="true"></video>`;
-    }
-    if (thumb.src) return `<img src="${thumb.src}" alt="${proj.t}" loading="lazy">`;
-    return `<div class="proj-card-fallback"><span>${proj.val}</span></div>`;
-  };
-
   gallery.className = 'projects-gallery';
-  gallery.innerHTML = ordered.map((index, displayIdx) => {
-    const proj = catData[index][0];
-    const group = getCategoryGroup(index);
-    const thumb = getProjectThumb(proj);
-    const featured = featuredSet.has(index);
+  gallery.innerHTML = `
+    <div class="proj-group" data-group="featured">
+      <h3 class="proj-group-title mono">Featured</h3>
+      <div class="proj-feature-list">${featured.map(renderFeaturedCard).join('')}</div>
+    </div>
+    <div class="proj-group" data-group="more">
+      <h3 class="proj-group-title mono">More projects</h3>
+      <div class="proj-grid">${rest.map(renderCompactCard).join('')}</div>
+    </div>
+  `;
 
-    return `
-      <article
-        class="project-card proj-card${featured ? ' is-featured' : ''}"
-        data-category="${getCategorySlug(index)}"
-        data-index="${index}"
-        tabindex="0"
-        role="button"
-        aria-label="${proj.t}"
-      >
-        <div class="proj-card-media${thumb.kind === 'none' ? ' is-fallback' : ''}${thumb.fit === 'contain' ? ' is-contain' : ''}">
-          ${renderThumb(thumb, proj)}
-          ${thumb.kind === 'video' ? '<span class="proj-card-play" aria-hidden="true">▶</span>' : ''}
-          <span class="proj-card-cat">${group ? group.title : ''}</span>
-        </div>
-        <div class="proj-card-body">
-          <div class="proj-card-meta">
-            <span class="proj-card-index mono">${String(displayIdx + 1).padStart(2, '0')}</span>
-            <span class="proj-card-date">${proj.date || ''}</span>
-          </div>
-          <h3>${proj.t}</h3>
-          <p class="proj-card-summary">${proj.situation}</p>
-          <div class="proj-card-footer">
-            <div class="proj-card-metric">
-              <span class="proj-card-metric-val">${proj.val}</span>
-              <span class="proj-card-metric-lbl">${proj.lbl}</span>
-            </div>
-            <div class="bento-card-tags">
-              ${proj.stack.slice(0, 3).map(tag => `<span class="bento-card-tag">${tag}</span>`).join('')}
-            </div>
-          </div>
-        </div>
-      </article>
-    `;
-  }).join('');
+  // Whole card is clickable; the title button is the accessible control.
+  gallery.addEventListener('click', (e) => {
+    const card = e.target.closest('[data-slug]');
+    if (!card || !gallery.contains(card)) return;
+    openProject(card.dataset.slug, card.querySelector('.proj-open'));
+  });
 
   function applyFilter() {
-    const cards = gallery.querySelectorAll('.project-card');
     let visible = 0;
-    cards.forEach(card => {
-      const show = activeFilter === 'all' || card.dataset.category === activeFilter;
-      card.classList.toggle('is-hidden', !show);
-      if (show) visible += 1;
+    gallery.querySelectorAll('.proj-group').forEach(group => {
+      let groupVisible = 0;
+      group.querySelectorAll('[data-domains]').forEach(card => {
+        const show = activeFilter === 'all' || card.dataset.domains.split(' ').includes(activeFilter);
+        card.hidden = !show;
+        if (show) groupVisible += 1;
+      });
+      group.hidden = groupVisible === 0;
+      visible += groupVisible;
     });
     if (filterBar) {
       filterBar.querySelectorAll('.proj-filter').forEach(btn => {
         const on = btn.dataset.filter === activeFilter;
         btn.classList.toggle('active', on);
-        btn.setAttribute('aria-selected', on ? 'true' : 'false');
+        btn.setAttribute('aria-pressed', on ? 'true' : 'false');
       });
     }
     const countEl = document.getElementById('projects-visible-count');
     if (countEl) {
+      const f = filters.find(x => x.slug === activeFilter);
       countEl.textContent = activeFilter === 'all'
-        ? `${visible} selected projects`
-        : `${visible} in ${filters.find(f => f.slug === activeFilter)?.title || ''}`;
+        ? `${visible} projects · ${featured.length} featured`
+        : `${visible} in ${f ? f.title : ''}`;
     }
   }
 
@@ -252,6 +305,24 @@ function renderProjects() {
   }
 
   applyFilter();
+  initCardVideoPausing(gallery);
+}
+
+// Pause card loops that are off screen (saves battery and CPU).
+function initCardVideoPausing(root) {
+  if (!('IntersectionObserver' in window) || prefersReducedMotion()) return;
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      const v = entry.target;
+      if (entry.isIntersecting) {
+        const p = v.play();
+        if (p && p.catch) p.catch(() => {});
+      } else {
+        v.pause();
+      }
+    });
+  }, { threshold: 0.15 });
+  root.querySelectorAll('video').forEach(v => io.observe(v));
 }
 
 // Render Skills Group list
@@ -308,179 +379,258 @@ function renderExperience() {
 }
 
 // ============================================================
-// 5. FILTERING LOGIC
+// 6. PROJECT DETAIL VIEW (DIALOG) & LIGHTBOX
 // ============================================================
 
-// Obsolete tag-filter logic removed. Projects are now grouped inside Category Accordions.
+let openProject = () => {};
+let modalOpenSlug = null;
 
-// ============================================================
-// 6. DETAILED DRAWER MODAL & LIGHTBOX VIEWER
-// ============================================================
+function renderDetailMedia(project) {
+  const reduceMotion = prefersReducedMotion();
+  let html = '';
+  if (project.media && project.media.length) {
+    const grid = project.media.length > 1;
+    html += `
+      <div class="detail-media-list${grid ? ' is-grid' : ''}${grid && project.media.every(m => m.aspect) ? ' is-compact' : ''}">
+        ${project.media.map(m => `
+          <figure class="detail-media-item${m.aspect ? ' has-aspect' : ''}"${m.aspect ? ` style="--media-aspect: ${m.aspect}"` : ''}>
+            <video src="${m.src}"${m.poster ? ` poster="${m.poster}"` : ''} controls muted loop playsinline${reduceMotion ? '' : ' autoplay'} preload="metadata"${m.caption ? ` aria-label="${escapeAttr(m.caption)}"` : ''}></video>
+            ${m.caption ? `<figcaption>${m.caption}</figcaption>` : ''}
+          </figure>
+        `).join('')}
+      </div>`;
+  }
+  if (project.video) {
+    html += `
+      <div class="video-wrapper">
+        <iframe src="${project.video}" title="${escapeAttr(project.t)} demo video" loading="lazy" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe>
+      </div>`;
+  }
+  if (project.images && project.images.length) {
+    html += `
+      <div class="detail-img-grid${project.images.length > 1 ? ' two-cols' : ''}">
+        ${project.images.map((img, i) => `
+          <button type="button" class="zoom-btn" aria-label="Enlarge figure ${i + 1} of ${project.images.length}">
+            <img src="${img}" alt="${escapeAttr(project.t)}: figure ${i + 1}" class="zoom-img" loading="lazy"/>
+          </button>`).join('')}
+      </div>`;
+  }
+  return html;
+}
+
+function renderDetail(project, prev, next) {
+  const domains = project.domains.map(d => domainBySlug[d]).filter(Boolean);
+  return `
+    <header class="detail-header">
+      <p class="detail-kicker mono">
+        <span>${domains.map(d => d.title).join(' · ')}</span>
+        <span aria-hidden="true">/</span>
+        <span>${project.date}</span>
+      </p>
+      <h2 class="detail-title" id="detail-title">${project.t}</h2>
+      <p class="detail-hook">${project.hook}</p>
+      <div class="detail-meta">
+        ${project.context ? `<span class="detail-context">${project.context}</span>` : ''}
+        ${renderBadges(project)}
+      </div>
+    </header>
+
+    <dl class="detail-metrics">
+      ${project.metrics.map(m => `
+        <div class="detail-metric">
+          <dt class="detail-metric-val">${m.num}</dt>
+          <dd class="detail-metric-lbl">${m.label}</dd>
+        </div>`).join('')}
+    </dl>
+
+    <div class="detail-media">${renderDetailMedia(project)}</div>
+
+    <div class="detail-grid">
+      <div class="detail-main">
+        <section class="detail-section">
+          <h3 class="detail-section-title mono">The problem</h3>
+          <p>${project.problem}</p>
+        </section>
+        <section class="detail-section">
+          <h3 class="detail-section-title mono">What I built</h3>
+          <ul>${project.approach.map(a => `<li>${a}</li>`).join('')}</ul>
+        </section>
+        <section class="detail-section">
+          <h3 class="detail-section-title mono">Results</h3>
+          <ul class="is-results">${project.results.map(r => `<li>${r}</li>`).join('')}</ul>
+        </section>
+      </div>
+      <aside class="detail-side">
+        <div class="detail-side-block">
+          <h3 class="detail-section-title mono">Tech stack</h3>
+          <ul class="proj-stack">${project.stack.map(s => `<li>${s}</li>`).join('')}</ul>
+        </div>
+        <div class="detail-side-block detail-links">
+          ${project.github ? `<a href="${project.github}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">View code on GitHub ↗</a>` : ''}
+          ${project.demo ? `<a href="${project.demo}" class="btn btn-secondary" target="_blank" rel="noopener noreferrer">Watch the demo ↗</a>` : ''}
+          ${project.private ? '<p class="detail-private-note">The code is in a private repository, so the clips above show it running instead.</p>' : ''}
+        </div>
+      </aside>
+    </div>
+
+    <nav class="detail-pager" aria-label="More projects">
+      <button type="button" class="detail-pager-btn" data-goto="${prev.slug}">
+        <span class="mono">← Previous</span><span class="detail-pager-name">${prev.t}</span>
+      </button>
+      <button type="button" class="detail-pager-btn is-next" data-goto="${next.slug}">
+        <span class="mono">Next →</span><span class="detail-pager-name">${next.t}</span>
+      </button>
+    </nav>
+  `;
+}
 
 function initProjectModal() {
   const modal = document.getElementById('detail-modal');
   const modalClose = document.getElementById('modal-close-btn');
   const modalBody = document.getElementById('modal-body-content');
-  
-  if (!modal || !modalClose || !modalBody) return;
-  
-  function openModal(index) {
-    const project = catData[index][0];
-    
-    modalBody.innerHTML = `
-      <div class="modal-header-section">
-        <span class="mono">// DETAILED_TELEMETRY_ARCHIVE_${index}</span>
-        <h2 class="modal-header-title">${project.t}</h2>
-        <div class="modal-header-tags">
-          ${project.stack.map(tag => `<span class="modal-header-tag">${tag}</span>`).join('')}
-        </div>
-      </div>
-      
-      <div class="modal-detail-grid">
-        <!-- SAR description panel -->
-        <div class="modal-text-col">
-          <div class="sar-container">
-            <h4>[ SITUATION ]</h4>
-            <p>${project.situation}</p>
-          </div>
-          <div class="sar-container">
-            <h4>[ ACTION ]</h4>
-            <p>${project.action}</p>
-          </div>
-          <div class="sar-container">
-            <h4>[ RESULT ]</h4>
-            <p>${project.result}</p>
-          </div>
-        </div>
-        
-        <!-- Media, metrics, links column -->
-        <div class="modal-media-col">
-          <!-- Video Frame embed -->
-          ${project.video ? `
-            <div class="video-wrapper">
-              <iframe src="${project.video}" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-            </div>
-          ` : ''}
+  const dialog = modal && modal.querySelector('.modal-content-wrapper');
+  if (!modal || !modalClose || !modalBody || !dialog) return;
 
-          <!-- Local video media -->
-          ${project.media && project.media.length > 0 ? `
-            <div class="detail-media-list${project.media.length > 1 && project.media.every(m => m.aspect) ? ' is-grid' : ''}">
-              ${project.media.map(m => `
-                <figure class="detail-media-item${m.aspect ? ' has-aspect' : ''}"${m.aspect ? ` style="--media-aspect: ${m.aspect}"` : ''}>
-                  <video src="${m.src}"${m.poster ? ` poster="${m.poster}"` : ''} controls muted loop playsinline${prefersReducedMotion() ? '' : ' autoplay'} preload="metadata"></video>
-                  ${m.caption ? `<figcaption>${m.caption}</figcaption>` : ''}
-                </figure>
-              `).join('')}
-            </div>
-          ` : ''}
+  dialog.setAttribute('role', 'dialog');
+  dialog.setAttribute('aria-modal', 'true');
+  dialog.setAttribute('aria-labelledby', 'detail-title');
+  modal.setAttribute('aria-hidden', 'true');
 
-          <!-- Image grid -->
-          ${project.images && project.images.length > 0 ? `
-            <div class="detail-img-grid ${project.images.length > 1 ? 'two-cols' : ''}">
-              ${project.images.map(img => `<img src="${img}" alt="Project details diagram" class="zoom-img"/>`).join('')}
-            </div>
-          ` : ''}
-          
-          <!-- Benchmarks Box -->
-          <div class="modal-benchmarks-box">
-            <h4 class="mono">[ BENCHMARK_METRICS ]</h4>
-            <div class="modal-benchmarks-list">
-              ${project.metrics ? project.metrics.map(m => `
-                <div class="modal-benchmark-item">
-                  <span class="modal-benchmark-val">${m.num}</span>
-                  <span class="modal-benchmark-lbl">${m.label}</span>
-                </div>
-              `).join('') : `
-                <div class="modal-benchmark-item">
-                  <span class="modal-benchmark-val">${project.val}</span>
-                  <span class="modal-benchmark-lbl">${project.lbl}</span>
-                </div>
-              `}
-            </div>
-          </div>
-          
-          <!-- Action Links -->
-          <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 8px;">
-            ${project.github ? `
-              <a href="${project.github}" class="btn btn-primary" style="width: 100%;" target="_blank" rel="noopener noreferrer">
-                View on GitHub ↗
-              </a>
-            ` : ''}
-            ${project.demo ? `
-              <a href="${project.demo}" class="btn btn-secondary" style="width: 100%;" target="_blank" rel="noopener noreferrer">
-                Watch Demo ↗
-              </a>
-            ` : ''}
-          </div>
-        </div>
-      </div>
-    `;
-    
-    modal.classList.add('open');
-    document.body.style.overflow = 'hidden';
-    
-    // Lightbox image viewer configuration
-    const images = modalBody.querySelectorAll('.zoom-img');
-    images.forEach(img => {
-      img.addEventListener('click', () => {
-        const overlay = document.createElement('div');
-        overlay.className = 'lightbox-overlay';
-        overlay.innerHTML = `
-          <button class="lightbox-close">&times;</button>
-          <img class="lightbox-img" src="${img.src}" alt="${img.alt}"/>
-        `;
-        document.body.appendChild(overlay);
-        
-        requestAnimationFrame(() => overlay.classList.add('active'));
-        
-        const closeLightbox = () => {
-          overlay.classList.remove('active');
-          setTimeout(() => overlay.remove(), 250);
-        };
-        
-        overlay.addEventListener('click', closeLightbox);
-        overlay.querySelector('.lightbox-close').addEventListener('click', closeLightbox);
-      });
-    });
-  }
-  
-  function closeModal() {
-    modal.classList.remove('open');
-    document.body.style.overflow = '';
-    
-    // Stop playing video on close
+  let returnFocusEl = null;
+  const order = orderedProjects();
+
+  function stopMedia() {
     const iframe = modalBody.querySelector('iframe');
-    if (iframe) iframe.src = '';
+    if (iframe) iframe.src = 'about:blank';
     modalBody.querySelectorAll('video').forEach(v => {
       v.pause();
       v.removeAttribute('src');
       v.load();
     });
   }
-  
-  function tryOpenCard(target) {
-    const card = target.closest('.project-card');
-    if (!card || card.classList.contains('is-hidden')) return;
-    const index = parseInt(card.dataset.index, 10);
-    if (!Number.isNaN(index)) openModal(index);
+
+  function show(slug) {
+    const idx = order.findIndex(p => p.slug === slug);
+    if (idx < 0) return false;
+    const project = order[idx];
+    const prev = order[(idx - 1 + order.length) % order.length];
+    const next = order[(idx + 1) % order.length];
+
+    stopMedia();
+    modalBody.innerHTML = renderDetail(project, prev, next);
+    dialog.scrollTop = 0;
+    modalOpenSlug = slug;
+
+    if (!modal.classList.contains('open')) {
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+    history.replaceState(null, '', `#projects/${slug}`);
+    document.title = `${project.t} · Gautham Ramkumar`;
+    return true;
   }
 
-  document.addEventListener('click', (e) => tryOpenCard(e.target));
-  document.addEventListener('keydown', (e) => {
-    if (e.key !== 'Enter' && e.key !== ' ') return;
-    if (!e.target.classList.contains('project-card')) return;
-    e.preventDefault();
-    tryOpenCard(e.target);
+  openProject = (slug, trigger) => {
+    returnFocusEl = trigger || document.activeElement;
+    if (show(slug)) modalClose.focus();
+  };
+
+  function closeModal() {
+    if (!modal.classList.contains('open')) return;
+    stopMedia();
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    modalOpenSlug = null;
+    document.title = defaultTitle;
+    history.replaceState(null, '', '#projects');
+    if (returnFocusEl && document.contains(returnFocusEl)) returnFocusEl.focus();
+  }
+
+  modalBody.addEventListener('click', (e) => {
+    const pager = e.target.closest('.detail-pager-btn');
+    if (pager) {
+      show(pager.dataset.goto);
+      modalClose.focus();
+      return;
+    }
+    const zoom = e.target.closest('.zoom-btn');
+    if (zoom) openLightbox(zoom.querySelector('img'), zoom);
   });
-  
+
   modalClose.addEventListener('click', closeModal);
   modal.querySelector('.modal-backdrop').addEventListener('click', closeModal);
-  
-  window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && modal.classList.contains('open')) {
+
+  document.addEventListener('keydown', (e) => {
+    if (!modal.classList.contains('open') || document.querySelector('.lightbox-overlay')) return;
+    if (e.key === 'Escape') {
       closeModal();
+    } else if (e.key === 'Tab') {
+      // Keep keyboard focus inside the dialog.
+      const focusables = [...dialog.querySelectorAll('button, a[href], video[controls], iframe, [tabindex]:not([tabindex="-1"])')]
+        .filter(el => !el.disabled && el.offsetParent !== null);
+      if (!focusables.length) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     }
   });
+
+  // Deep links: #projects/<slug>
+  function syncFromHash() {
+    const m = window.location.hash.match(/^#projects\/([\w-]+)$/);
+    if (m && projectBySlug[m[1]]) {
+      if (modalOpenSlug !== m[1]) openProject(m[1], null);
+    } else if (modal.classList.contains('open')) {
+      closeModal();
+    }
+  }
+  window.addEventListener('hashchange', syncFromHash);
+  syncFromHash();
+}
+
+const defaultTitle = typeof document !== 'undefined' ? document.title : '';
+
+function openLightbox(img, trigger) {
+  if (!img) return;
+  const overlay = document.createElement('div');
+  overlay.className = 'lightbox-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-label', img.alt);
+  overlay.innerHTML = `
+    <button type="button" class="lightbox-close" aria-label="Close enlarged image">&times;</button>
+    <img class="lightbox-img" src="${img.src}" alt="${escapeAttr(img.alt)}"/>
+  `;
+  document.body.appendChild(overlay);
+  requestAnimationFrame(() => overlay.classList.add('active'));
+  const closeBtn = overlay.querySelector('.lightbox-close');
+  closeBtn.focus();
+
+  const close = () => {
+    overlay.classList.remove('active');
+    document.removeEventListener('keydown', onKey, true);
+    setTimeout(() => overlay.remove(), 250);
+    if (trigger) trigger.focus();
+  };
+  const onKey = (e) => {
+    if (e.key === 'Escape') {
+      e.stopPropagation();
+      close();
+    } else if (e.key === 'Tab') {
+      e.preventDefault();
+      closeBtn.focus();
+    }
+  };
+  overlay.addEventListener('click', close);
+  document.addEventListener('keydown', onKey, true);
 }
 
 // ============================================================
