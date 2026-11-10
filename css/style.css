@@ -651,6 +651,14 @@ button {
   transform: scale(1.02);
   transition: transform 0.5s ease;
 }
+/* Square / odd-aspect clips: show the whole frame, letterboxed on neutral dark */
+.proj-card-media.is-contain {
+  background: #141414;
+}
+.proj-card-media.is-contain img,
+.proj-card-media.is-contain video {
+  object-fit: contain;
+}
 .proj-card:hover .proj-card-media img,
 .proj-card:focus-visible .proj-card-media img,
 .proj-card:hover .proj-card-media video,
@@ -1260,6 +1268,20 @@ button {
   border: 1px solid var(--border-color);
   background-color: #000;
   transition: border-color var(--transition-speed);
+}
+/* Items with a declared natural aspect (e.g. square 260 px clips) */
+.detail-media-list.is-grid {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  align-items: start;
+}
+.detail-media-item.has-aspect {
+  width: 100%;
+  max-width: 420px;
+  justify-self: center;
+}
+.detail-media-item.has-aspect video {
+  aspect-ratio: var(--media-aspect);
+  object-fit: contain;
 }
 .detail-media-item video:hover {
   border-color: var(--accent);

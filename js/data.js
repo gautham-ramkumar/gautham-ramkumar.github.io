@@ -279,7 +279,23 @@ export const catData = [
         { num: '28/30', label: 'absent-object runs stopped before the arm moves' }
       ],
       stack: ['Python', 'LeRobot', 'MuJoCo', 'LIBERO', 'SmolVLA', 'C++17'],
-      github: 'https://github.com/gautham-ramkumar/Backstop_VLA'
+      github: 'https://github.com/gautham-ramkumar/Backstop_VLA',
+      media: [
+        {
+          src: 'media/backstop_failure.mp4',
+          poster: 'media/backstop_failure.jpg',
+          fit: 'contain',
+          aspect: '1 / 1',
+          caption: 'Failure (frozen SmolVLA, LIBERO-Spatial task 0, seed 1): approaches, never secures the bowl and runs out the 280-step clock. Shown at 2× speed.'
+        },
+        {
+          src: 'media/backstop_success.mp4',
+          poster: 'media/backstop_success.jpg',
+          fit: 'contain',
+          aspect: '1 / 1',
+          caption: 'Success (same task, seed 0): grasps the bowl and places it on the plate in 100 steps.'
+        }
+      ]
     }
   ],
 

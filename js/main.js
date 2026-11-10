@@ -103,7 +103,12 @@ function prefersReducedMotion() {
 
 function getProjectThumb(proj) {
   if (proj.media && proj.media.length > 0 && proj.media[0].src) {
-    return { kind: 'local-video', src: proj.media[0].src, poster: proj.media[0].poster || '' };
+    return {
+      kind: 'local-video',
+      src: proj.media[0].src,
+      poster: proj.media[0].poster || '',
+      fit: proj.media[0].fit === 'contain' ? 'contain' : 'cover'
+    };
   }
   if (proj.video) {
     const match = proj.video.match(/embed\/([A-Za-z0-9_-]+)/);
@@ -188,7 +193,7 @@ function renderProjects() {
         role="button"
         aria-label="${proj.t}"
       >
-        <div class="proj-card-media${thumb.kind === 'none' ? ' is-fallback' : ''}">
+        <div class="proj-card-media${thumb.kind === 'none' ? ' is-fallback' : ''}${thumb.fit === 'contain' ? ' is-contain' : ''}">
           ${renderThumb(thumb, proj)}
           ${thumb.kind === 'video' ? '<span class="proj-card-play" aria-hidden="true">▶</span>' : ''}
           <span class="proj-card-cat">${group ? group.title : ''}</span>
@@ -359,9 +364,9 @@ function initProjectModal() {
 
           <!-- Local video media -->
           ${project.media && project.media.length > 0 ? `
-            <div class="detail-media-list">
+            <div class="detail-media-list${project.media.length > 1 && project.media.every(m => m.aspect) ? ' is-grid' : ''}">
               ${project.media.map(m => `
-                <figure class="detail-media-item">
+                <figure class="detail-media-item${m.aspect ? ' has-aspect' : ''}"${m.aspect ? ` style="--media-aspect: ${m.aspect}"` : ''}>
                   <video src="${m.src}"${m.poster ? ` poster="${m.poster}"` : ''} controls muted loop playsinline${prefersReducedMotion() ? '' : ' autoplay'} preload="metadata"></video>
                   ${m.caption ? `<figcaption>${m.caption}</figcaption>` : ''}
                 </figure>
