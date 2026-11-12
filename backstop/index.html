@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Backstop — Runtime Failure Prediction for VLA Policies · Gautham Ramkumar</title>
+  <meta name="description" content="Backstop watches a frozen VLA policy and stops failing runs 0.67 s sooner than a stopwatch, at a 4.3% held-out false-stop rate.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="style.css">
+  <script>
+    (function() {
+      var savedTheme = 'light';
+      try { savedTheme = localStorage.getItem('portfolio-theme') || 'light'; } catch (e) {}
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+  </script>
+</head>
+<body class="report-page">
+
+  <header id="main-header">
+    <div class="header-inner">
+      <a href="../index.html" class="brand-logo">
+        <span class="logo-text">Gautham Ramkumar</span>
+      </a>
+      <nav id="header-nav">
+        <ul>
+          <li><a href="../index.html#about" class="nav-link">About</a></li>
+          <li><a href="../index.html#projects" class="nav-link active">Projects</a></li>
+          <li><a href="../index.html#skills" class="nav-link">Skills</a></li>
+          <li><a href="../index.html#experience" class="nav-link">Experience</a></li>
+          <li><a href="../index.html#contact" class="nav-link">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="header-controls">
+        <button id="theme-toggle" aria-label="Toggle light/dark theme">
+          <span class="toggle-icon sun-icon">☀️</span>
+          <span class="toggle-icon moon-icon">🌙</span>
+        </button>
+        <div class="resume-menu" id="resume-menu">
+          <a href="../Gautham_Ramkumar_Resume.pdf" class="btn-hire" target="_blank" rel="noopener noreferrer">Resume →</a>
+        </div>
+        <button id="mobile-menu-btn" class="mobile-toggle" aria-label="Toggle Navigation Menu">
+          <span class="hamburger"></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-container">
+    <article class="report">
+      <p class="report-kicker mono">Research report  ·  Robot learning</p>
+      <h1>Backstop — Runtime failure prediction for VLA policies</h1>
+      <p class="report-dek">A supervisory layer that watches a frozen Vision-Language-Action policy and stops a run that is going wrong earlier than a timeout would.</p>
+      <p class="report-meta">
+        <span>Gautham Ramkumar</span>
+        <span>Chicago Education Advocacy Corporation</span>
+        <span>August 2026 – present</span>
+        <span>Solo project</span>
+      </p>
+      <div class="report-actions">
+        <a class="btn btn-primary" href="https://huggingface.co/spaces/rgautham20/backstop" target="_blank" rel="noopener noreferrer">Live demo ↗</a>
+        <a class="btn btn-secondary" href="../index.html#projects/backstop">Project card</a>
+      </div>
+
+      <dl class="report-metrics">
+        <div class="report-metric">
+          <dt>0.67 s</dt>
+          <dd>earlier stop than a stopwatch (13.4 steps on average)</dd>
+        </div>
+        <div class="report-metric">
+          <dt>4.3%</dt>
+          <dd>held-out false-stop rate, against a 5% budget</dd>
+        </div>
+        <div class="report-metric">
+          <dt>28/30</dt>
+          <dd>absent-object runs stopped before the arm moves</dd>
+        </div>
+        <div class="report-metric">
+          <dt>70.0%</dt>
+          <dd>SmolVLA success on LIBERO-Spatial (all 30 failures are stalls)</dd>
+        </div>
+      </dl>
+
+      <section class="report-abstract" id="abstract">
+        <h2>Abstract</h2>
+        <p>
+          A Vision-Language-Action (VLA) policy maps camera images and a natural-language
+          instruction straight to robot actions. It generalises well, and it fails silently:
+          nothing in the action stream says that the gripper is about to close on empty air.
+          Backstop is a supervisory layer that watches a <em>frozen</em> policy while it runs
+          and decides whether to trust what the policy does next. On a recorded SmolVLA
+          corpus in LIBERO, a guard of action-chunk disagreement combined with a stopwatch,
+          with both triggers set from good runs only, ends failing runs
+          <strong>13.4 steps (0.67&nbsp;s) sooner</strong> than a stopwatch alone, at a
+          <strong>4.3%</strong> held-out false-stop rate, and catches every failure across
+          20 random splits. A separate open-vocabulary detector gate stops
+          <strong>28 of 30</strong> runs whose instructed object is absent, before the arm
+          moves. Recovery — lift, back off, and retry — does not help this policy.
+        </p>
+      </section>
+
+      <section id="problem">
+        <h2>The problem, in two clips</h2>
+        <p>
+          Same task, same frozen policy, adjacent starting scenes. Nothing in the policy’s
+          output distinguishes them. Both are from the recorded corpus, LIBERO-Spatial
+          task 0, seeds 0 and 1. The camera is the agentview render at 20&nbsp;Hz. The
+          failure clip is shown at 2× speed.
+        </p>
+        <div class="clip-grid">
+          <figure class="clip-card">
+            <video src="../media/backstop_success.mp4" poster="../media/backstop_success.jpg" controls muted loop playsinline preload="metadata" aria-label="Successful rollout, 100 steps"></video>
+            <figcaption><strong>Success — 100 steps</strong>Grasps the bowl, places it on the plate. Seed 0.</figcaption>
+          </figure>
+          <figure class="clip-card">
+            <video src="../media/backstop_failure.mp4" poster="../media/backstop_failure.jpg" controls muted loop playsinline preload="metadata" aria-label="Failing rollout, 280-step timeout, shown at 2x"></video>
+            <figcaption><strong>Failure — 280 steps (timeout)</strong>Approaches, never secures the bowl, runs out the clock. Seed 1.</figcaption>
+          </figure>
+        </div>
+        <p>
+          On the LIBERO-Spatial clean baseline the policy succeeds on <strong>70 of 100</strong>
+          episodes. All 30 failures stall until the 280-step cap. That pattern is what makes
+          a stopwatch a strong baseline, and what a learned-looking signal has to beat on time,
+          not on failures caught.
+        </p>
+      </section>
+
+      <section id="method">
+        <h2>Method</h2>
+        <p>
+          The policy is <code>HuggingFaceVLA/smolvla_libero</code>, frozen, on LIBERO
+          (MuJoCo, Franka Panda). Backstop never modifies or retrains it. Rollouts are
+          recorded once into a LeRobot dataset that keeps the full 50-step action chunk
+          and <strong>K&nbsp;=&nbsp;4</strong> sampled chunks per step. Guard development
+          then runs against that corpus and iterates in seconds.
+        </p>
+
+        <figure class="method-figure" aria-label="Backstop method diagram">
+          <svg viewBox="0 0 840 430" role="img" xmlns="http://www.w3.org/2000/svg">
+            <title>Backstop watches a frozen SmolVLA rollout and combines action-chunk disagreement with a stopwatch</title>
+            <style>
+              .bx { fill: var(--bg-primary); stroke: var(--text-primary); stroke-width: 1.25; }
+              .bx-acc { fill: var(--accent-glow); stroke: var(--accent); stroke-width: 1.6; }
+              .lb { font-family: Inter, "Space Grotesk", sans-serif; fill: var(--text-primary); }
+              .sm { font-family: Inter, "Space Grotesk", sans-serif; fill: var(--text-secondary); }
+              .ar { stroke: var(--text-secondary); stroke-width: 1.4; fill: none; marker-end: url(#arr); }
+            </style>
+            <defs>
+              <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-secondary)"/>
+              </marker>
+            </defs>
+            <rect class="bx" x="20" y="24" width="200" height="64" rx="10"/>
+            <text class="lb" x="120" y="50" text-anchor="middle" font-size="14" font-weight="600">Frozen SmolVLA</text>
+            <text class="sm" x="120" y="70" text-anchor="middle" font-size="11">camera + instruction → actions</text>
+
+            <line class="ar" x1="220" y1="56" x2="298" y2="56"/>
+
+            <rect class="bx" x="300" y="24" width="240" height="64" rx="10"/>
+            <text class="lb" x="420" y="50" text-anchor="middle" font-size="14" font-weight="600">LIBERO rollout</text>
+            <text class="sm" x="420" y="70" text-anchor="middle" font-size="11">MuJoCo, Franka Panda, 20 Hz</text>
+
+            <line class="ar" x1="620" y1="56" x2="542" y2="56"/>
+
+            <rect class="bx" x="620" y="24" width="200" height="64" rx="10"/>
+            <text class="lb" x="720" y="50" text-anchor="middle" font-size="14" font-weight="600">Perturbations</text>
+            <text class="sm" x="720" y="70" text-anchor="middle" font-size="11">lighting, camera, pose, language…</text>
+
+            <line class="ar" x1="420" y1="88" x2="420" y2="126"/>
+
+            <rect class="bx" x="170" y="128" width="500" height="58" rx="10"/>
+            <text class="lb" x="420" y="152" text-anchor="middle" font-size="14" font-weight="600">Recorded corpus</text>
+            <text class="sm" x="420" y="172" text-anchor="middle" font-size="11">observations, executed action, full chunk, K = 4 sampled chunks per step</text>
+
+            <line class="ar" x1="300" y1="186" x2="220" y2="228"/>
+            <line class="ar" x1="540" y1="186" x2="620" y2="228"/>
+
+            <rect class="bx-acc" x="80" y="230" width="280" height="64" rx="10"/>
+            <text class="lb" x="220" y="256" text-anchor="middle" font-size="14" font-weight="600">Action-chunk disagreement</text>
+            <text class="sm" x="220" y="276" text-anchor="middle" font-size="11">spread across K samples under flow noise</text>
+
+            <rect class="bx-acc" x="480" y="230" width="280" height="64" rx="10"/>
+            <text class="lb" x="620" y="256" text-anchor="middle" font-size="14" font-weight="600">Stopwatch</text>
+            <text class="sm" x="620" y="276" text-anchor="middle" font-size="11">stop a run that outlasts good ones</text>
+
+            <line class="ar" x1="220" y1="294" x2="360" y2="336"/>
+            <line class="ar" x1="620" y1="294" x2="480" y2="336"/>
+
+            <rect class="bx-acc" x="220" y="338" width="400" height="70" rx="12"/>
+            <text class="lb" x="420" y="366" text-anchor="middle" font-size="15" font-weight="600">OnlineGuard  ·  disagreement OR stopwatch</text>
+            <text class="sm" x="420" y="388" text-anchor="middle" font-size="11">both triggers set from good runs only, under a 5% false-stop budget</text>
+          </svg>
+          <figcaption>Figure 1. Backstop sits beside a frozen policy. The headline guard is the disjunction of two triggers, each calibrated from successes only. An OWLv2 missing-object check runs separately on the first frame and is not part of this headline rule. A header-only C++17 port of the online guard matches the Python implementation bit for bit over 500 recorded episodes.</figcaption>
+        </figure>
+
+        <h3>Signals</h3>
+        <p>
+          Action-chunk disagreement is the spread of K sampled plans under different
+          flow-matching noise. A wide spread means the policy has no confident plan.
+          That signal is the one that made the headline. Temporal self-consistency,
+          progress monitoring, and a learned trust head were also tried; the trust
+          head caught the most failures alone, but as a guard OR stopwatch it saved
+          less time than disagreement (0.47&nbsp;s vs 0.67&nbsp;s). Those alternatives
+          are archived.
+        </p>
+        <h3>The metric</h3>
+        <p>
+          Accuracy is the wrong measure: a guard that halts everything catches every
+          failure and is useless. The false-stop budget is 5% of runs that would have
+          succeeded, fixed in writing before any guard existed. Once a stopwatch
+          turned out to catch every failure in this corpus, the headline became
+          <em>time saved over that clock</em>, with both held to the same budget.
+          Rules are set from good runs only, by an order statistic with no search,
+          which bounds the false-stop rate by construction.
+        </p>
+      </section>
+
+      <section id="results">
+        <h2>Results</h2>
+        <p>
+          All headline figures are measured on the held-out half of the LIBERO-Spatial
+          corpus, over 20 random splits. Numbers match the project card on this site.
+        </p>
+
+        <h3>Saved over a stopwatch</h3>
+        <table>
+          <thead>
+            <tr><th></th><th>mean</th><th>10th–90th percentile</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Saved over the stopwatch</strong></td><td><strong>13.4 steps (0.67 s)</strong></td><td>−1.4 to 25.9 steps</td></tr>
+            <tr><td>Held-out false-stop rate</td><td>0.043</td><td>0.013 to 0.072</td></tr>
+            <tr><td>Splits with no gain</td><td>3/20</td><td></td></tr>
+            <tr><td>Failures caught</td><td>all</td><td></td></tr>
+          </tbody>
+        </table>
+        <p class="report-note">The stopwatch alone stops failures at step 135 on average (6.7 s). The disagreement signal fires before it on about half the failures.</p>
+
+        <h3>20-split comparison</h3>
+        <table>
+          <thead>
+            <tr><th>rule</th><th>held-out false-stop</th><th>splits over 5%</th><th>detection</th><th>mean stop step</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>stopwatch only</td><td>0.051 [0.014–0.087]</td><td>10/20</td><td>1.000</td><td>135 (6.7 s)</td></tr>
+            <tr><td>disagreement OR stopwatch</td><td>0.043 [0.013–0.072]</td><td>8/20</td><td>1.000</td><td>121 (6.1 s)</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Is the failure visible at the onset?</h3>
+        <p>
+          At step t, take the signal’s highest value so far, and compare failures
+          with the successes still running at t. 0.5 is a coin flip. The reviewed
+          onset of a no-grasp or failed-grasp episode is around step 40; there the
+          signal sits at 0.65. By the end of a run, separation is much stronger
+          (AUROC about 0.8–0.9).
+        </p>
+        <table>
+          <thead>
+            <tr><th>step</th><th>successes running</th><th>disagreement AUROC</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>20</td><td>231</td><td>0.61</td></tr>
+            <tr><td>40</td><td>231</td><td>0.65</td></tr>
+            <tr><td>60</td><td>231</td><td>0.68</td></tr>
+            <tr><td>80</td><td>207</td><td>0.75</td></tr>
+            <tr><td>100</td><td>117</td><td>0.77</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Missing-object gate</h3>
+        <p>
+          A per-object open-vocabulary detector (OWLv2) asks, before the arm moves,
+          whether the instructed object is in the first frame. It is reported on its
+          own and is not added to the headline guard. It needs reference frames from
+          the same kind of scene, and it cannot tell some lookalike grocery cartons apart.
+        </p>
+        <table>
+          <thead>
+            <tr><th></th><th>result</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Missing moka pot (<code>language_absent</code>), stopped at step 0</td><td><strong>28/30</strong></td></tr>
+            <tr><td>Spatial held-out good runs stopped (black bowl present)</td><td>2/69</td></tr>
+            <tr><td>Object-suite runs not used as references, stopped (item present)</td><td>8/60</td></tr>
+            <tr><td>Same 30 runs, headline guard (disagreement OR stopwatch)</td><td>median stop step 86 (4.3 s)</td></tr>
+          </tbody>
+        </table>
+        <p class="report-note">The two misses score 0.298 and 0.310 against a line of 0.291: a lookalike on the table. The margin is thin. CLIP and SmolVLM2 did not work for this check.</p>
+
+        <h3>Unseen suite (LIBERO-Object)</h3>
+        <p>
+          Thresholds do not transfer. Object-suite good runs are slower and score
+          higher, and the frozen spatial rule stops <strong>17%</strong> of them
+          (31 of 83 successes; it detects 16 of 17 failures). Recalibrating from
+          about 40 good runs in the new suite, with no failures needed, brings the
+          false-stop rate back under 5%. The signal carries over; its level does not.
+        </p>
+        <table>
+          <thead>
+            <tr><th>good object runs</th><th>false-stop</th><th>bound</th><th>mean stop step</th><th>signal first</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>10</td><td>0.172</td><td>0.182</td><td>123</td><td>82%</td></tr>
+            <tr><td>20</td><td>0.093</td><td>0.095</td><td>143</td><td>78%</td></tr>
+            <tr><td>30</td><td>0.058</td><td>0.065</td><td>163</td><td>71%</td></tr>
+            <tr><td>40</td><td>0.041</td><td>0.049</td><td>177</td><td>65%</td></tr>
+            <tr><td>50</td><td>0.035</td><td>0.039</td><td>188</td><td>60%</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Recovery does not help this policy</h3>
+        <p>
+          When the guard fires, the arm opens, lifts 10&nbsp;cm, backs off 8&nbsp;cm
+          and settles, then the policy is allowed to try again. That motion rescued
+          <strong>1 of 19</strong> failures and spoiled 1 good run, a paired change
+          of 0 (McNemar p&nbsp;=&nbsp;1.0). The policy returns to the same stall a
+          median of 33 steps after each recovery.
+        </p>
+      </section>
+
+      <section id="limitations">
+        <h2>Limitations</h2>
+        <ul>
+          <li>One policy (SmolVLA) on LIBERO in simulation. No real hardware, no policy fine-tuning, no comparison across architectures.</li>
+          <li>Every natural failure of this policy is a stall. That makes a stopwatch strong and the signals’ contribution small. A setting whose failures end early — a collision, a drop — would give the signals more to do; the metric is defined so that would show up.</li>
+          <li>Onset labels are one reviewer’s judgement, so lead time is a secondary metric.</li>
+          <li>Recovery was tested with one motion on one policy. A recovery that changes the policy’s situation more than a short move, or re-wording the instruction, is untested.</li>
+        </ul>
+        <div class="callout">
+          <strong>About the live demo.</strong> The dashboard replays these two
+          recorded clips and the numbers on this page. It does not run SmolVLA.
+          Per-step disagreement traces are not in the public repository (they are
+          written to a gitignored artifacts path from the recorded corpus), so the
+          demo does not invent a score series for these episodes. It does show each
+          clip against the published stopwatch threshold (step 132 on one 5% split)
+          and the 100-episode clean baseline.
+        </div>
+      </section>
+
+      <div class="report-footer-nav">
+        <a class="btn btn-primary" href="https://huggingface.co/spaces/rgautham20/backstop" target="_blank" rel="noopener noreferrer">Open the live demo ↗</a>
+        <a class="btn btn-secondary" href="../index.html#projects/backstop">Back to the project card</a>
+      </div>
+    </article>
+
+    <footer id="main-footer">
+      <div class="footer-inner">
+        <p class="mono">&copy; 2026 Gautham Ramkumar. All rights reserved.</p>
+        <div class="footer-socials">
+          <a href="https://linkedin.com/in/rgautham20" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          <a href="https://github.com/gautham-ramkumar" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    (function () {
+      var toggle = document.getElementById('theme-toggle');
+      if (toggle) {
+        toggle.addEventListener('click', function () {
+          var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+          document.documentElement.setAttribute('data-theme', next);
+          try { localStorage.setItem('portfolio-theme', next); } catch (e) {}
+        });
+      }
+      var menuBtn = document.getElementById('mobile-menu-btn');
+      var nav = document.getElementById('header-nav');
+      if (menuBtn && nav) {
+        menuBtn.addEventListener('click', function () {
+          var open = menuBtn.classList.toggle('active');
+          nav.classList.toggle('active', open);
+        });
+        nav.querySelectorAll('.nav-link').forEach(function (link) {
+          link.addEventListener('click', function () {
+            menuBtn.classList.remove('active');
+            nav.classList.remove('active');
+          });
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

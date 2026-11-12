@@ -151,6 +151,26 @@ function renderBadges(proj) {
   return badges.join('');
 }
 
+function renderProjectLinks(project, { compact = false } = {}) {
+  const links = [];
+  const compactCls = 'proj-ext-link';
+  const hasLead = Boolean(project.liveDemo);
+  if (project.liveDemo) {
+    links.push(`<a href="${project.liveDemo}" class="${compact ? compactCls : 'btn btn-primary'}" target="_blank" rel="noopener noreferrer">Live demo ↗</a>`);
+  }
+  if (project.report) {
+    links.push(`<a href="${project.report}" class="${compact ? compactCls : 'btn btn-secondary'}">Report</a>`);
+  }
+  if (project.github) {
+    const ghClass = compact ? compactCls : (hasLead ? 'btn btn-secondary' : 'btn btn-primary');
+    links.push(`<a href="${project.github}" class="${ghClass}" target="_blank" rel="noopener noreferrer">${compact ? 'Code ↗' : 'View code on GitHub ↗'}</a>`);
+  }
+  if (project.demo) {
+    links.push(`<a href="${project.demo}" class="${compact ? compactCls : 'btn btn-secondary'}" target="_blank" rel="noopener noreferrer">Watch the demo ↗</a>`);
+  }
+  return links.join('');
+}
+
 function renderFeaturedCard(proj) {
   const thumb = renderThumb(proj);
   const titleId = `proj-title-${proj.slug}`;
@@ -181,7 +201,9 @@ function renderFeaturedCard(proj) {
           <ul class="proj-stack" aria-label="Tech stack">
             ${proj.stack.slice(0, 5).map(s => `<li>${s}</li>`).join('')}
           </ul>
-          <span class="proj-cta" aria-hidden="true">Read case study →</span>
+          <div class="proj-feature-actions">
+            ${renderProjectLinks(proj, { compact: true }) || '<span class="proj-cta" aria-hidden="true">Read case study →</span>'}
+          </div>
         </div>
       </div>
     </article>
@@ -262,6 +284,7 @@ function renderProjects() {
 
   // Whole card is clickable; the title button is the accessible control.
   gallery.addEventListener('click', (e) => {
+    if (e.target.closest('a')) return;
     const card = e.target.closest('[data-slug]');
     if (!card || !gallery.contains(card)) return;
     openProject(card.dataset.slug, card.querySelector('.proj-open'));
@@ -466,8 +489,7 @@ function renderDetail(project, prev, next) {
           <ul class="proj-stack">${project.stack.map(s => `<li>${s}</li>`).join('')}</ul>
         </div>
         <div class="detail-side-block detail-links">
-          ${project.github ? `<a href="${project.github}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">View code on GitHub ↗</a>` : ''}
-          ${project.demo ? `<a href="${project.demo}" class="btn btn-secondary" target="_blank" rel="noopener noreferrer">Watch the demo ↗</a>` : ''}
+          ${renderProjectLinks(project)}
           ${project.private ? '<p class="detail-private-note">The code is in a private repository, so the clips above show it running instead.</p>' : ''}
         </div>
       </aside>

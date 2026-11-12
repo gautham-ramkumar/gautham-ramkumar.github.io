@@ -1,0 +1,260 @@
+/* Page-specific styles for the Backstop research report.
+   Tokens and the site header/footer come from ../css/style.css. */
+
+body.report-page #main-container {
+  display: block;
+  padding-top: 5.5rem;
+}
+
+.report {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 1.5rem 5rem;
+}
+
+.report-kicker {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 0.75rem;
+}
+
+.report h1 {
+  font-family: var(--font-serif);
+  font-size: clamp(2.1rem, 5vw, 3.35rem);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.12;
+  margin: 0 0 0.85rem;
+  color: var(--text-primary);
+}
+
+.report-dek {
+  font-size: 1.15rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  margin: 0 0 1.25rem;
+  max-width: 42rem;
+}
+
+.report-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.25rem;
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  margin: 0 0 1.5rem;
+}
+
+.report-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin: 0 0 2.5rem;
+}
+
+.report-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.85rem;
+  margin: 0 0 3rem;
+}
+
+.report-metric {
+  background: var(--bg-secondary);
+  border: 1px solid color-mix(in srgb, var(--text-primary) 8%, transparent);
+  border-radius: 14px;
+  padding: 1.1rem 1.15rem 1.15rem;
+}
+
+.report-metric dt {
+  font-family: var(--font-serif);
+  font-size: 1.85rem;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  color: var(--accent);
+  line-height: 1.1;
+}
+
+.report-metric dd {
+  margin: 0.45rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+
+.report section {
+  margin: 0 0 3rem;
+}
+
+.report h2 {
+  font-family: var(--font-serif);
+  font-size: 1.85rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  margin: 0 0 1rem;
+  color: var(--text-primary);
+}
+
+.report h3 {
+  font-family: var(--font-sans);
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 1.75rem 0 0.7rem;
+  color: var(--text-primary);
+}
+
+.report p,
+.report li {
+  font-size: 1.02rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+.report p { margin: 0 0 1rem; }
+.report ul, .report ol { margin: 0 0 1rem 1.15rem; padding: 0; }
+.report li { margin: 0 0 0.4rem; }
+.report strong { color: var(--text-primary); font-weight: 600; }
+
+.report a:not(.btn):not(.brand-logo):not(.nav-link) {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.report-abstract {
+  background: var(--bg-secondary);
+  border-left: 3px solid var(--accent);
+  padding: 1.25rem 1.4rem 1.15rem;
+  border-radius: 0 12px 12px 0;
+}
+
+.report-abstract h2 { font-size: 0.78rem; font-family: var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.7rem; }
+.report-abstract p { margin-bottom: 0; }
+
+.clip-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.1rem;
+  margin: 1.25rem 0 0.5rem;
+}
+
+.clip-card {
+  background: var(--bg-secondary);
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--text-primary) 8%, transparent);
+}
+
+.clip-card video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  background: #111;
+}
+
+.clip-card figcaption {
+  padding: 0.8rem 1rem 1rem;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+.clip-card figcaption strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.method-figure {
+  background: var(--bg-secondary);
+  border: 1px solid color-mix(in srgb, var(--text-primary) 8%, transparent);
+  border-radius: 14px;
+  padding: 1.25rem 1rem 0.5rem;
+  margin: 1.25rem 0 1.5rem;
+  overflow-x: auto;
+}
+
+.method-figure svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.method-figure figcaption {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  padding: 0.75rem 0.4rem 0.85rem;
+}
+
+.report table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+  margin: 0.5rem 0 1.25rem;
+}
+
+.report th,
+.report td {
+  text-align: left;
+  padding: 0.55rem 0.65rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--text-primary) 10%, transparent);
+  vertical-align: top;
+  color: var(--text-secondary);
+}
+
+.report th {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.report td:not(:first-child),
+.report th:not(:first-child) {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.report-note {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin: -0.4rem 0 1.4rem;
+}
+
+.callout {
+  border-left: 3px solid var(--accent);
+  background: var(--accent-glow);
+  padding: 0.95rem 1.15rem;
+  border-radius: 0 10px 10px 0;
+  margin: 1rem 0 1.5rem;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.callout strong { color: var(--accent); }
+
+.report-footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid color-mix(in srgb, var(--text-primary) 10%, transparent);
+}
+
+@media (max-width: 720px) {
+  .report-metrics,
+  .clip-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 560px) {
+  .report-metrics,
+  .clip-grid { grid-template-columns: 1fr; }
+  .report { padding-left: 1.15rem; padding-right: 1.15rem; }
+}

@@ -47,10 +47,13 @@ export const projectDomains = [
 //   metrics   up to three headline numbers
 //   stack     technologies
 //   github    public repo link (omit for private repos)
+//   report    research-report page on this site (e.g. /backstop/)
+//   liveDemo  public dashboard or app (e.g. a Hugging Face Space)
 //   private   true when the repo is private; media is shown instead
 //   media     local mp4 clips {src, poster, caption, fit, aspect}
 //   video     YouTube embed URL
 //   images    still images for the detail view
+//   demo      optional YouTube / external watch-the-demo link
 // ------------------------------------------------------------
 export const projects = [
   // 0
@@ -393,6 +396,8 @@ export const projects = [
     ],
     stack: ['Python', 'LeRobot', 'SmolVLA', 'LIBERO', 'MuJoCo', 'OWLv2', 'C++17'],
     github: 'https://github.com/gautham-ramkumar/Backstop_VLA',
+    report: '/backstop/',
+    liveDemo: 'https://huggingface.co/spaces/rgautham20/backstop',
     media: [
       {
         src: 'media/backstop_failure.mp4',
