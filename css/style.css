@@ -1606,6 +1606,13 @@ button {
   aspect-ratio: var(--media-aspect);
   object-fit: contain;
 }
+.detail-media-list.is-grid.has-wide {
+  grid-template-columns: repeat(2, 1fr);
+}
+.detail-media-item.is-wide {
+  grid-column: 1 / -1;
+  max-width: none;
+}
 .detail-media-item figcaption {
   margin-top: 8px;
   font-size: 12.5px;

@@ -414,9 +414,9 @@ function renderDetailMedia(project) {
   if (project.media && project.media.length) {
     const grid = project.media.length > 1;
     html += `
-      <div class="detail-media-list${grid ? ' is-grid' : ''}${grid && project.media.every(m => m.aspect) ? ' is-compact' : ''}">
+      <div class="detail-media-list${grid ? ' is-grid' : ''}${grid && project.media.every(m => m.aspect) ? ' is-compact' : ''}${project.media.some(m => m.wide) ? ' has-wide' : ''}">
         ${project.media.map(m => `
-          <figure class="detail-media-item${m.aspect ? ' has-aspect' : ''}"${m.aspect ? ` style="--media-aspect: ${m.aspect}"` : ''}>
+          <figure class="detail-media-item${m.aspect ? ' has-aspect' : ''}${m.wide ? ' is-wide' : ''}"${m.aspect ? ` style="--media-aspect: ${m.aspect}"` : ''}>
             <video src="${m.src}"${m.poster ? ` poster="${m.poster}"` : ''} controls muted loop playsinline${reduceMotion ? '' : ' autoplay'} preload="metadata"${m.caption ? ` aria-label="${escapeAttr(m.caption)}"` : ''}></video>
             ${m.caption ? `<figcaption>${m.caption}</figcaption>` : ''}
           </figure>

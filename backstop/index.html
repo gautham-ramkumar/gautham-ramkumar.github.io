@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Backstop — Runtime Failure Prediction for VLA Policies · Gautham Ramkumar</title>
+  <title>Backstop — Runtime Failure Detection for VLA Policies · Gautham Ramkumar</title>
   <meta name="description" content="Backstop watches a frozen VLA policy and stops failing runs 0.67 s sooner than a stopwatch, at a 4.3% held-out false-stop rate.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -51,7 +51,7 @@
   <main id="main-container">
     <article class="report">
       <p class="report-kicker mono">Research report  ·  Robot learning</p>
-      <h1>Backstop — Runtime failure prediction for VLA policies</h1>
+      <h1>Backstop — Runtime failure detection for VLA policies</h1>
       <p class="report-dek">A supervisory layer that watches a frozen Vision-Language-Action policy and stops a run that is going wrong earlier than a timeout would.</p>
       <p class="report-meta">
         <span>Gautham Ramkumar</span>
@@ -97,7 +97,8 @@
           <strong>4.3%</strong> held-out false-stop rate, and catches every failure across
           20 random splits. A separate open-vocabulary detector gate stops
           <strong>28 of 30</strong> runs whose instructed object is absent, before the arm
-          moves. Recovery — lift, back off, and retry — does not help this policy.
+          moves. Two scripted recoveries were tested when the guard fires; neither helps
+          this policy significantly.
         </p>
       </section>
 
@@ -119,6 +120,10 @@
             <figcaption><strong>Failure — 280 steps (timeout)</strong>Approaches, never secures the bowl, runs out the clock. Seed 1.</figcaption>
           </figure>
         </div>
+        <figure class="clip-card">
+          <video src="../media/backstop_guard.mp4" poster="../media/backstop_guard.jpg" controls muted loop playsinline preload="metadata" aria-label="The guard firing on the failing rollout"></video>
+          <figcaption><strong>The guard on that failure</strong>The four sampled action chunks start to disagree as the grasp goes wrong. The score crosses the frozen 5% line at step 48 (2.4&nbsp;s) and the guard stops the run; a stopwatch alone would wait until step 140. The greyed trace is the run continuing without the guard, to the 280-step cap. One of the guard's better cases: it saves 13.4 steps on average.</figcaption>
+        </figure>
         <p>
           On the LIBERO-Spatial clean baseline the policy succeeds on <strong>70 of 100</strong>
           episodes. All 30 failures stall until the 280-step cap. That pattern is what makes
@@ -311,13 +316,31 @@
           </tbody>
         </table>
 
-        <h3>Recovery does not help this policy</h3>
+        <h3>Recovery: tested, not significant</h3>
         <p>
-          When the guard fires, the arm opens, lifts 10&nbsp;cm, backs off 8&nbsp;cm
-          and settles, then the policy is allowed to try again. That motion rescued
-          <strong>1 of 19</strong> failures and spoiled 1 good run, a paired change
-          of 0 (McNemar p&nbsp;=&nbsp;1.0). The policy returns to the same stall a
-          median of 33 steps after each recovery.
+          When the guard fires, a scripted motion moves the arm and the policy tries
+          again. Each guarded run is restored from the recorded sim state at its
+          trigger step and compared with the unguarded run from the same state, on the
+          first 20 episodes the guard fires on.
+        </p>
+        <table>
+          <thead>
+            <tr><th>motion</th><th>rescued</th><th>spoiled</th><th>change in success rate</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Open, lift 10&nbsp;cm, back off 8&nbsp;cm, retry (up to 2×)</td><td>1</td><td>1</td><td>0.00 (McNemar p&nbsp;=&nbsp;1.0)</td></tr>
+            <tr><td>Open, lift, return to the start pose, retry once</td><td>3</td><td>1</td><td>+0.10 (p&nbsp;=&nbsp;0.63)</td></tr>
+          </tbody>
+        </table>
+        <p>
+          After lifting and backing off, the policy sees nearly the same view and
+          returns to the same stall a median of 33 steps later. Returning home should do
+          better: re-run from its start state under fresh sampling noise, the policy
+          succeeds on <strong>42%</strong> of tries on scenes it had failed (25 of 60).
+          But when the guard fires the arm has often already moved the bowl, by more
+          than 5&nbsp;cm in 7 of the 20 episodes, so the retry starts from a scene the
+          policy never saw in training. The policy was trained only on clean
+          demonstrations, so it has no practice recovering from its own mistakes.
         </p>
       </section>
 
@@ -327,16 +350,13 @@
           <li>One policy (SmolVLA) on LIBERO in simulation. No real hardware, no policy fine-tuning, no comparison across architectures.</li>
           <li>Every natural failure of this policy is a stall. That makes a stopwatch strong and the signals’ contribution small. A setting whose failures end early — a collision, a drop — would give the signals more to do; the metric is defined so that would show up.</li>
           <li>Onset labels are one reviewer’s judgement, so lead time is a secondary metric.</li>
-          <li>Recovery was tested with one motion on one policy. A recovery that changes the policy’s situation more than a short move, or re-wording the instruction, is untested.</li>
+          <li>Recovery was tested with two scripted motions on one frozen policy. Re-wording the instruction, a recovery that sets the object down instead of dropping it, and a policy trained on its own corrections are untested.</li>
         </ul>
         <div class="callout">
           <strong>About the live demo.</strong> The dashboard replays these two
-          recorded clips and the numbers on this page. It does not run SmolVLA.
-          Per-step disagreement traces are not in the public repository (they are
-          written to a gitignored artifacts path from the recorded corpus), so the
-          demo does not invent a score series for these episodes. It does show each
-          clip against the published stopwatch threshold (step 132 on one 5% split)
-          and the 100-episode clean baseline.
+          recorded clips beside the guard's recorded score at every step, with the
+          frozen 5% rule's line and stopwatch, plus the numbers on this page. It does
+          not run SmolVLA.
         </div>
       </section>
 

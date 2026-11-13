@@ -50,7 +50,7 @@ export const projectDomains = [
 //   report    research-report page on this site (e.g. /backstop/)
 //   liveDemo  public dashboard or app (e.g. a Hugging Face Space)
 //   private   true when the repo is private; media is shown instead
-//   media     local mp4 clips {src, poster, caption, fit, aspect}
+//   media     local mp4 clips {src, poster, caption, fit, aspect, wide}
 //   video     YouTube embed URL
 //   images    still images for the detail view
 //   demo      optional YouTube / external watch-the-demo link
@@ -370,7 +370,7 @@ export const projects = [
   // 11
   {
     slug: 'backstop',
-    t: 'Backstop — Runtime Failure Prediction for VLA Policies',
+    t: 'Backstop — Runtime Failure Detection for VLA Policies',
     hook: 'A safety layer that spots when a frozen robot policy is failing and stops it early.',
     domains: ['robot-learning'],
     date: 'Aug 2026 – Present',
@@ -387,7 +387,7 @@ export const projects = [
       'Reproduced a 70.0% SmolVLA baseline on LIBERO-Spatial (100 episodes; all 30 failures are stalls at the 280-step cap).',
       'Ends failing runs 13.4 steps (0.67 s) sooner than a stopwatch on average, at a 4.3% held-out false-stop rate, catching every failure across 20 random splits.',
       'The OWLv2 gate stops 28 of 30 absent-object runs before the arm moves; the C++17 port matches Python bit for bit over 500 episodes.',
-      'Reported a negative result too: a lift-back-off-retry recovery rescued only 1 of 19 failures, because the policy returned to the same stall.'
+      'Tested two recovery motions: lifting and backing off rescued 1 of 19 failures (change 0), and sending the arm home to retry rescued 3 and spoiled 1 of 20 (+0.10, p = 0.63). Neither is significant; by the time the guard fires the arm has often moved the bowl.'
     ],
     metrics: [
       { num: '0.67 s', label: 'earlier stop than a stopwatch' },
@@ -412,6 +412,14 @@ export const projects = [
         fit: 'contain',
         aspect: '1 / 1',
         caption: 'Success (same task, seed 0): grasps the bowl and places it on the plate in 100 steps.'
+      },
+      {
+        src: 'media/backstop_guard.mp4',
+        poster: 'media/backstop_guard.jpg',
+        fit: 'contain',
+        aspect: '960 / 420',
+        wide: true,
+        caption: 'The guard on the failing run: action-chunk disagreement crosses the frozen 5% line at step 48 (2.4 s) and the guard stops the run; a stopwatch alone would wait until step 140.'
       }
     ]
   },
