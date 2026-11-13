@@ -41,7 +41,7 @@ experience:
       - Grew automated test coverage from 44 to 145 tests across a two-job CI pipeline
       - Reproduced a 70% SmolVLA task-success baseline in MuJoCo on an 8 GB GPU with pinned dependencies
       - Built a dataset verifier that catches 3 silent defects (zeroed chunks, wrong state convention, no unnormalization)
-      - Built Backstop, a VLA failure monitor reaching 85.4% detection at 2.9% false-stop on held-out episodes
+      - Built Backstop, a VLA failure guard that stops failing runs 0.67 s sooner than a timer at 4.3% false stops
 
   - org: SmartInternz
     role: Internet of Things Intern
